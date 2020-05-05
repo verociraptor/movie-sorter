@@ -87,4 +87,4 @@ def display_all_movies():
                 + " & runtime: " + str(movie.runtime)
                 + " & release year: " + str(movie.release_year) + "\n")
         
-get_highest_metascored_movie()
+display_all_movies()
