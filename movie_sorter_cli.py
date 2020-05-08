@@ -81,10 +81,16 @@ def get_highest_rottentomscored_movie():
     
 def display_all_movies():
     for movie in movies:
-        print(movie.name + " RT: " + str(movie.rotten_tom_score)
-                + " & imdb: " + str(movie.imdb_score)
-                + " & metascore: " + str(movie.metascore)
-                + " & runtime: " + str(movie.runtime)
-                + " & release year: " + str(movie.release_year) + "\n")
+        print(movie.name + "\n RT: " + str(movie.rotten_tom_score)
+                + "\n & imdb: " + str(movie.imdb_score)
+                + "\n & metascore: " + str(movie.metascore)
+                + "\n & runtime: " + str(movie.runtime)
+                + "\n & release year: " + str(movie.release_year)
+                + "\n & genre: " + str(movie.genre)
+                + "\n & plot: " + str(movie.plot)
+                + "\n & director: " + str(movie.director)
+                + "\n & actors: " + str(movie.actors)
+                + "\n & awards: " + str(movie.awards)
+                + "\n")
         
 display_all_movies()
