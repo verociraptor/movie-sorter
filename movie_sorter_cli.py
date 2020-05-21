@@ -1,96 +1,93 @@
 import movie_sorter
-import sys
+import pyodbc
+import sys 
+import constant as c
+
+#connects to SQL Database
+ 
+cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+c.SERVER+
+                      ';DATABASE='+c.DATABASE+';UID='+c.USERNAME+';PWD='+ c.PASSWORD)
+cursor = cnxn.cursor()
+
 
 movies = movie_sorter.get_movies_in_dir(sys.argv[1])
-
-def get_most_recent_movie():
-    list.sort(movies, key=lambda movie: movie.release_year)
-    year = movies[len(movies)-1].release_year
     
-    #gets all movies with same release_year if also recent
-    recent_movies = [movie for movie in reversed(movies) 
-                        if movie.release_year == year]
-    if len(recent_movies) > 1:  
-        print("Movies made most recently are:\n")
-        for movie in recent_movies:
-            print(movie.name + " made in " + str(movie.release_year) + "\n")
-    else:
-        print("Movie made most recently is: " + recent_movies[0].name
-                + " made in " + str(recent_movies[0].release_year))
-
-def get_highest_metascored_movie():
-    list.sort(movies, key=lambda movie: movie.metascore)
-    score = movies[len(movies)-1].metascore
-    
-    #gets all movies with same release_year if also recent
-    metascored_movies = [movie for movie in reversed(movies) 
-                        if movie.metascore == score]
-    if len(metascored_movies) > 1:  
-        print("Movies with the highest Metascore are:\n")
-        for movie in metascored_movies:
-            print(movie.name + " of rating " + str(movie.metascore) + "/100\n")
-    else:
-        print("Movie with the highest Metascore is: " + metascored_movies[0].name
-                + " of rating " + str(metascored_movies[0].metascore) + "/100")
-    
-def get_shortest_runtime_movie():
-    list.sort(movies, key=lambda movie: movie.runtime)
-    runtime = movies[0].runtime
-    
-    #gets all movies with same release_year if also recent
-    shortest_movies = [movie for movie in movies
-                        if movie.runtime == runtime]
-    if len(shortest_movies) > 1:  
-        print("Movies with the shortest runtime are:\n")
-        for movie in shortest_movies:
-            print(movie.name + " is " + str(movie.runtime) + " min\n")
-    else:
-        print("Movie with the shortest runtime is: " + shortest_movies[0].name
-                + " is " + str(shortest_movies[0].runtime) + " min")
-
-def get_highest_imdbscored_movie():
-    list.sort(movies, key=lambda movie: movie.imdb_score)
-    score = movies[len(movies)-1].imdb_score
-    
-    #gets all movies with same release_year if also recent
-    imdbscored_movies = [movie for movie in reversed(movies) 
-                        if movie.imdb_score == score]
-    if len(imdbscored_movies) > 1:  
-        print("Movies with the highest IMDB score are:\n")
-        for movie in imdbscored_movies:
-            print(movie.name + " of rating " + str(movie.imdb_score) + "/10\n")
-    else:
-        print("Movie with the highest IMDB score is: " + imdbscored_movies[0].name
-                + " of rating " + str(imdbscored_movies[0].imdb_score) + "/10")
-
-def get_highest_rottentomscored_movie():
-    list.sort(movies, key=lambda movie: movie.rotten_tom_score)
-    score = movies[len(movies)-1].rotten_tom_score
-    
-    #gets all movies with same release_year if also recent
-    rottenscored_movies = [movie for movie in reversed(movies) 
-                            if movie.rotten_tom_score == score]
-    if len(rottenscored_movies) > 1:  
-        print("Movies with the highest Rotten Tomato scores are:\n")
-        for movie in rottenscored_movies:
-            print(movie.name + " is " + str(movie.rotten_tom_score) + "%\n")
-    else:
-        print("Movie with the highest Rotten Tomato score is: " 
-                + rottenscored_movies[0].name + " of rating " 
-                + str(rottenscored_movies[0].rotten_tom_score) + "%")
-    
-def display_all_movies():
+   
+def export_to_SQLMoviesTable():
     for movie in movies:
-        print(movie.name + "\n RT: " + str(movie.rotten_tom_score)
-                + "\n & imdb: " + str(movie.imdb_score)
-                + "\n & metascore: " + str(movie.metascore)
-                + "\n & runtime: " + str(movie.runtime)
-                + "\n & release year: " + str(movie.release_year)
-                + "\n & genre: " + str(movie.genre)
-                + "\n & plot: " + str(movie.plot)
-                + "\n & director: " + str(movie.director)
-                + "\n & actors: " + str(movie.actors)
-                + "\n & awards: " + str(movie.awards)
-                + "\n")
+        try:
+            cursor.execute('''
+                        INSERT INTO DB_A0C996_JMProjects.dbo.Movies 
+                        (movie, rotten_tomato_score, idmb_score, metascore, runtime,
+                        release_year, genre, plot, director, actors, awards, cumul_score)
+                        VALUES
+                        (?,?,?,?,?,?,?,?,?,?,?,?)
+                        ''', (movie.name),(movie.rotten_tom_score),(movie.imdb_score),(movie.metascore),(movie.runtime),
+                        (movie.release_year), (movie.genre),(movie.plot),(movie.director),(movie.actors),(movie.awards),
+                        (round((movie.rotten_tom_score + movie.metascore + 10*movie.imdb_score)/3,0)))
+            cnxn.commit()
+        except pyodbc.IntegrityError: 
+            # The Integrity Error arises when duplicates are attempted to be inserted , there is a primary key serverside which does not allow this
+            # but raises an error which has to be waived to continue running the insert procedure
+            pass
+
+def adv_search( movie ,release_year, genre):
+    if movie != None:
+        movie = str("%"+ movie+"%" )
+    elif genre != None:
+        genre = str("%"+ genre+"%" )
+    # the % xxx % format is syntax to allow the keyword searches to be performed
+    movies=cursor.execute('''SELECT * FROM Movies
+                    WHERE   (movie like (?) or (?) IS NULL) AND
+                            (release_year = (?) or (?) IS NULL) AND
+                            (genre like (?) or (?) IS NULL)
+                            '''
+                            ,movie, movie, release_year, release_year, genre, genre)
+    for row in movies:
+        print(row[1])
+
+    
+def apply_filters(score_option,year_option):
+    
+    if score_option == "TRUE":
+        score_filter=int(input("Select a movie ranking metric:\n" +
+              "[1] Rotten Tomatoes \n" +
+              "[2] IDMB \n" +
+              "[3] Metascore \n" +
+              "[4] Cumulative Score (of above options)\n\n "))
+        if score_filter == 1 :
+            filter_option = 'rotten_tomato_score'
+        elif score_filter == 2 :
+            filter_option = 'idmb_score'
+        elif score_filter == 3 :
+            filter_option = 'metascore'
+        elif score_filter == 4 :
+            filter_option = 'cumul_score'
+            
+    elif year_option == "TRUE":
+        filter_option= "release_year"
         
-display_all_movies()
+    ASC_DSC=int(input('Would you like your sorting option to be in ascending or descending order?\n'+
+                      "[1] Ascending \n" +
+                      "[2] Descending \n\n"))
+    if ASC_DSC == 1:
+        ASC_DSC = 'ASC'
+    elif ASC_DSC == 2:
+        ASC_DSC = 'DESC'
+        
+    movies = cursor.execute('''exec sp_SortData @OrderByColumnName =  ?, @ASC_DSC = ?  ''',filter_option, ASC_DSC)
+    #the stored procedure invoked here can be viewed under the JMprojects database , under programmability, and stored procedures 
+    #this format can be used to modularize fields which are columnnames
+    
+    print('')
+    for row in movies:
+        print(row[1])
+
+
+#export_to_SQLMoviesTable()
+        
+#adv_search(None,None,None)   # the format is (movie,release year, genre)
+
+#apply_filters("TRUE","FALSE") # the format is (score filter , release_year filter)
+#apply_filters("FALSE","TRUE")
+

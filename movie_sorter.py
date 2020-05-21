@@ -1,9 +1,7 @@
 import os
 import requests
 import re 
-import constant
-
-
+import constant as c
 
 class Movie:
     def __init__(self, name, year):
@@ -20,6 +18,7 @@ class Movie:
         self.director = ""
         self.actors = ""
         self.awards = ""
+        self.watched = False
         
    
     def set_properties(self, tmdb_info, omdb_info):
@@ -41,53 +40,99 @@ class Movie:
 #movie name is in first index
 #release year is in second index       
 def get_name_and_year(nm):
-    movie_and_year = re.split('[(;)]', nm)
-    movie_and_year[0] = movie_and_year[0].replace(".", " ")
+    i = 0
+    year = 0
+    split_idx = 0
+    #get last year seen in string name
+    while(i < len(nm)):
+        total = 0
+        while(i < len(nm) and str.isdigit(nm[i])):
+            total *= 10
+            total += int(nm[i])
+            i += 1
+        if(total <= c.CURR_YEAR and total >= c.FIRST_MOVIE_YEAR):
+            year = total
+            split_idx = (i - 5)
+            continue
+        i += 1
+    #case 1 - no '(' exists b/w movie & year  
+    #case 2 - no year found in string
+    movie = nm[:split_idx] if split_idx != 0 else nm  
+    
+    #case 3 - '(' exists regardless if year found or not
+    movie_1 = re.split('[(]', movie)[0].replace(".", " ") 
+    movie_and_year = [movie_1, year]
     return movie_and_year
 
 #check if movie property is available in OMDB API
 def is_valid(string):
     return string != 'N/A'
 
-#TODO: handle error cases, i.e multiple results, no results
+#returns movie id within tmdb in order to 
+#later retrieve the imdb id
 def get_tmdb_id(nm, year):
-    payload = {'api_key': constant.TMDB_KEY, 'query': nm, 'page': '1', 
+    payload = ({'api_key': c.TMDB_KEY, 'query': nm, 'page': '1', 
                 'include_adult': 'false', 'primary_release_year': year}
-    resp = requests.get(constant.TMDB_URL + 'search/movie', params = payload)
+                if year != 0 else
+                {'api_key': c.TMDB_KEY, 'query': nm, 'page': '1', 
+                'include_adult': 'false'})
+    resp = requests.get(c.TMDB_URL + 'search/movie', params = payload)
+    
+    if resp.status_code != c.OK_STATUS:
+        return c.error
+        
     resp_json = resp.json()
-    return resp_json['results'][0]['id']
+    #throw error when there are multiple results if year is not given 
+    tmdb_id = (resp_json['results'][0]['id'] 
+                if year != 0 or resp_json['total_results'] == 1 else
+                c.ERROR)
+    return tmdb_id
  
- 
+#returns tmdb details of movie including the imdb id
 def get_movie_tmdb(tmdb_id):
-    payload = {'api_key': constant.TMDB_KEY}
-    resp = requests.get(constant.TMDB_URL + 'movie/' + str(tmdb_id), params = payload)
+    payload = {'api_key': c.TMDB_KEY}
+    resp = requests.get(c.TMDB_URL + 'movie/' + str(tmdb_id), 
+                            params = payload)
+                  
+    if resp.status_code != c.OK_STATUS: #movie not found
+        return c.ERROR 
+        
     return resp.json()
 
-#returns the ratings in an array of dictionaries 
+#returns the omdb details of movie including the ratings
 def get_movie_omdb(imdb_id):
-    payload = {'i': imdb_id, 'apikey': constant.OMDB_KEY}
-    resp = requests.get(constant.OMDB_URL, params = payload)
+    payload = {'i': str(imdb_id), 'apikey': c.OMDB_KEY}
+    resp = requests.get(c.OMDB_URL, params = payload)
+    if resp.status_code != c.OK_STATUS or not resp.json()["Response"]: #movie not found
+        return c.ERROR
+    
     return resp.json()
- 
-#TODO: handle errors for OMDB  
+  
 def get_movies_in_dir(path):
-    movies_arr = []
+    movies_found = []
+    movies_not_found = []
     for entry in os.scandir(path):
         if entry.is_dir():
             #get current movie 
             movie_year = get_name_and_year(entry.name)
-            curr_movie = Movie(movie_year[0], int(movie_year[1]))
             
+            curr_movie = Movie(movie_year[0], int(movie_year[1]))
             #get TMDB id from TMDB
             tmdb_id = get_tmdb_id(movie_year[0], movie_year[1])
             
-            #get movie info and imdb id from TMDB
-            tmdb_json = get_movie_tmdb(tmdb_id)
+            if(tmdb_id != c.ERROR):
+                #get movie info and imdb id from TMDB
+                tmdb_json = get_movie_tmdb(tmdb_id)
+                
+                #get movie info from OMDB not seen in TMDB
+                omdb_json = get_movie_omdb(tmdb_json["imdb_id"])
+                
+                if(tmdb_json != c.ERROR and omdb_json != c.ERROR):
+                    curr_movie.set_properties(tmdb_json, omdb_json)
+                    movies_found.append(curr_movie)
+                else:
+                    movies_not_found.append(entry.name)
+            else:
+                movies_not_found.append(entry.name)
             
-            #get movie info from OMDB not seen in TMDB
-            omdb_json = get_movie_omdb(tmdb_json["imdb_id"])
-            
-            curr_movie.set_properties(tmdb_json, omdb_json)
-            movies_arr.append(curr_movie)
-            
-    return movies_arr    
+    return movies_found, movies_not_found
