@@ -1,5 +1,3 @@
 # movie-sorter
-A simple script to sort and select my movies for me
+A simple script to sort and select my movies for me. My very own at-home movie library!
 
-
-To execute: ./move-sorter.py [directory to look in]
