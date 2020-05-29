@@ -1,24 +1,89 @@
 import movie_sorter
 import pyodbc
-import sys 
-import constant as c
 
-#connects to SQL Database
- 
-cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+c.SERVER+
-                      ';DATABASE='+c.DATABASE+';UID='+c.USERNAME+';PWD='+ c.PASSWORD)
-cursor = cnxn.cursor()
+moviename=1
 
-
-movies = movie_sorter.get_movies_in_dir(sys.argv[1])
+def Connect_to_Cloud():
     
-   
-def export_to_SQLMoviesTable():
+    # connects to SQL Database stored in cloud
+    # global defines local variables globally
+    
+    server = 'sql5053.site4now.net' 
+    database = 'DB_A0C996_JMProjects' 
+    username = 'DB_A0C996_JMProjects_admin' 
+    password = 'Pa55word' 
+    global cnxn 
+    cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+
+                          ';DATABASE='+database+';UID='+username+';PWD='+ password)
+    global cursor 
+    cursor = cnxn.cursor()
+
+def Create_Local_Cache():
+    
+    # Creates a Local (SQL Express) Database and Table to store Movie Sorter Information
+    # global defines local variables globally
+    # this function also creates stored procedures serverside
+    
+    server = 'localhost\SQLEXPRESS01'
+    global cnxn
+    cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+
+                          ';Trusted_Connection=yes',autocommit=True)
+    cursor = cnxn.cursor()
+    cursor.execute('''CREATE DATABASE Movies''')
+    cnxn.commit()
+    cursor.execute('''
+                       USE Movies
+                      CREATE TABLE Movies
+                      (
+                       movie nvarchar(250)
+                      ,rotten_tomato_score float
+                      ,metascore float
+                      ,imdb_score float
+                      ,release_year int
+                      ,genre nvarchar(max)
+                      ,plot nvarchar(max)
+                      ,director nvarchar(max)
+                      ,runtime int
+                      ,awards nvarchar(max)
+                      ,actors nvarchar(max)
+                      ,cumul_score float
+                      )
+                      ''')
+                       
+    cursor.execute('''CREATE PROCEDURE sp_SortData
+                            @OrderByColumnName nvarchar(MAX),
+                            @ASC_DSC nvarchar(MAX)
+                      AS
+                          DECLARE @SQLStatement nvarchar(max)
+                          SET @SQLStatement = N'select * from Movies order by '+@OrderByColumnName+ ' ' + @ASC_DSC
+                          EXEC sp_executesql @statement = @SQLStatement ''')
+    cnxn.commit()
+
+
+def Connect_to_Local_Cache():
+    # global defines local variables globally   
+    # Connects to Local SQL Database 
+    
+    server = 'localhost\SQLEXPRESS01'
+    database = 'Movies' 
+    global cnxn
+    cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+
+                          ';DATABASE='+database+ ';Trusted_Connection=yes')
+    
+    global cursor 
+    cursor = cnxn.cursor()
+
+    
+
+# 'D:/SSD/Movies/Two'
+def export_to_SQLMoviesTable(directory):
+
+    movies = movie_sorter.get_movies_in_dir(directory)
     for movie in movies:
         try:
             cursor.execute('''
-                        INSERT INTO DB_A0C996_JMProjects.dbo.Movies 
-                        (movie, rotten_tomato_score, idmb_score, metascore, runtime,
+                        INSERT INTO Movies 
+                        (movie, rotten_tomato_score, imdb_score, metascore, runtime,
                         release_year, genre, plot, director, actors, awards, cumul_score)
                         VALUES
                         (?,?,?,?,?,?,?,?,?,?,?,?)
@@ -31,20 +96,25 @@ def export_to_SQLMoviesTable():
             # but raises an error which has to be waived to continue running the insert procedure
             pass
 
-def adv_search( movie ,release_year, genre):
+def adv_search( movie ,release_year_range, genre):
     if movie != None:
         movie = str("%"+ movie+"%" )
     elif genre != None:
         genre = str("%"+ genre+"%" )
     # the % xxx % format is syntax to allow the keyword searches to be performed
-    movies=cursor.execute('''SELECT * FROM Movies
-                    WHERE   (movie like (?) or (?) IS NULL) AND
-                            (release_year = (?) or (?) IS NULL) AND
+    elif release_year_range == None:
+        release_year_range =[1800,2100]
+    # includes all possible years in case of a null field, thereby omitting no movies
+        
+    movies=cursor.execute('''SELECT * FROM Movies WHERE
+                            (movie like (?) or (?) IS NULL) AND
+                            (release_year between (?) AND (?)) AND
                             (genre like (?) or (?) IS NULL)
                             '''
-                            ,movie, movie, release_year, release_year, genre, genre)
+                            ,movie, movie, release_year_range[0], release_year_range[1], genre, genre)
     for row in movies:
-        print(row[1])
+        #returns movie names matching criteria
+        print(row[moviename])
 
     
 def apply_filters(score_option,year_option):
@@ -81,13 +151,30 @@ def apply_filters(score_option,year_option):
     
     print('')
     for row in movies:
-        print(row[1])
+        #Returns movie names
+        print(row[moviename])
 
-
-#export_to_SQLMoviesTable()
+## Creates local Database and uploads movies in directory to them with API information 
+    # Create_Local_Cache()  ## Add Identity Column
+    # Connect_to_Local_Cache()
+    # export_to_SQLMoviesTable('D:/SSD/Movies/Two') 
         
-#adv_search(None,None,None)   # the format is (movie,release year, genre)
+##Connects to Local SQL Database and uploads movies in directory to them with API information 
+    # Connect_to_Local_Cache()
+    # export_to_SQLMoviesTable('D:/SSD/Movies/Two')
 
+## Connects to Cloud SQL Database and uploads movies in directory to them with API information 
+    # Connect_to_Cloud()
+    # export_to_SQLMoviesTable('D:/SSD/Movies/Two')
+
+
+
+## Choose to either connect to cloud OR Local Cache but both
+#Connect_to_Cloud()
+#Connect_to_Local_Cache() 
+         
+# Try out the Filters one by one by uncommenting
+#adv_search(None,(2000,2020),None)   # the format is (movie, release year range, genre)
 #apply_filters("TRUE","FALSE") # the format is (score filter , release_year filter)
 #apply_filters("FALSE","TRUE")
 
