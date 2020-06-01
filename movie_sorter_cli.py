@@ -12,6 +12,7 @@ def Connect_to_Cloud():
     database = 'DB_A0C996_JMProjects' 
     username = 'DB_A0C996_JMProjects_admin' 
     password = 'Pa55word' 
+    
     global cnxn 
     cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+
                           ';DATABASE='+database+';UID='+username+';PWD='+ password)
@@ -35,7 +36,8 @@ def Create_Local_Cache():
                        USE Movies
                       CREATE TABLE Movies
                       (
-                       movie nvarchar(250)
+                      id int identity(1,1)
+                      ,movie nvarchar(250)
                       ,rotten_tomato_score float
                       ,metascore float
                       ,imdb_score float
@@ -47,9 +49,9 @@ def Create_Local_Cache():
                       ,awards nvarchar(max)
                       ,actors nvarchar(max)
                       ,cumul_score float
+                      primary key (movie,release_year)
                       )
                       ''')
-                       
     cursor.execute('''CREATE PROCEDURE sp_SortData
                             @OrderByColumnName nvarchar(MAX),
                             @ASC_DSC nvarchar(MAX)
@@ -58,7 +60,6 @@ def Create_Local_Cache():
                           SET @SQLStatement = N'select * from Movies order by '+@OrderByColumnName+ ' ' + @ASC_DSC
                           EXEC sp_executesql @statement = @SQLStatement ''')
     cnxn.commit()
-
 
 def Connect_to_Local_Cache():
     # global defines local variables globally   
@@ -72,8 +73,15 @@ def Connect_to_Local_Cache():
     
     global cursor 
     cursor = cnxn.cursor()
+    print("Connected to Local Cache\n")
 
-    
+def Delete_Local_Cache():
+    cnxn.autocommit = True
+    cursor.execute('''ALTER DATABASE Movies SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                       GO
+                       Drop Database Movies;''')  
+    cnxn.commit()
+    print("Deleted Local Cache")
 
 # 'D:/SSD/Movies/Two'
 def export_to_SQLMoviesTable(directory):
@@ -137,7 +145,7 @@ def apply_filters(score_option,year_option):
     elif year_option == "TRUE":
         filter_option= "release_year"
         
-    ASC_DSC=int(input('Would you like your sorting option to be in ascending or descending order?\n'+
+    ASC_DSC=int(input('Would you like your sorting option to be in ascending or descending numerical order?\n'+
                       "[1] Ascending \n" +
                       "[2] Descending \n\n"))
     if ASC_DSC == 1:
@@ -153,28 +161,36 @@ def apply_filters(score_option,year_option):
     for row in movies:
         #Returns movie names
         print(row[moviename])
+        # can be modified to return any row
 
-## Creates local Database and uploads movies in directory to them with API information 
-    # Create_Local_Cache()  ## Add Identity Column
-    # Connect_to_Local_Cache()
-    # export_to_SQLMoviesTable('D:/SSD/Movies/Two') 
+## First time user would run these three functions sequentially
+## Description : Creates local Database and uploads movies in directory to them with API information , uncomment all three, run, then comment out again
+#Create_Local_Cache()  
+#Connect_to_Local_Cache()
+#export_to_SQLMoviesTable('D:/SSD/Movies/Two') 
         
-##Connects to Local SQL Database and uploads movies in directory to them with API information 
-    # Connect_to_Local_Cache()
-    # export_to_SQLMoviesTable('D:/SSD/Movies/Two')
+##Returning User doesn't need to create Database Again, would run these two functions if they have new movies to upload to the sorter        
+##Description: Connects to Local SQL Database and uploads movies in directory to them with API information 
+#Connect_to_Local_Cache()
+#export_to_SQLMoviesTable('D:/SSD/Movies/Two')
 
-## Connects to Cloud SQL Database and uploads movies in directory to them with API information 
-    # Connect_to_Cloud()
-    # export_to_SQLMoviesTable('D:/SSD/Movies/Two')
+## Alternative testing connection which doesnt need to be created anew since it'll alway be there for anyone developer to use
+## Description : Connects to Cloud SQL Database and uploads movies in directory to them with API information 
+#Connect_to_Cloud()
+#export_to_SQLMoviesTable('D:/SSD/Movies/Two')
 
-
-
-## Choose to either connect to cloud OR Local Cache but both
+## A Returning User with no new movies to upload would run one of these functions to connect amd then run a filter function (lines 187 - 189)
+## Description : Choose to either connect to cloud OR Local Cache but not both
 #Connect_to_Cloud()
 #Connect_to_Local_Cache() 
          
-# Try out the Filters one by one by uncommenting
-#adv_search(None,(2000,2020),None)   # the format is (movie, release year range, genre)
+## Try out the Filters one by one by uncommenting, remember to connect to either the cloud or the local cache first tho
+#adv_search(None,(2000,2020),None)   ## the format is (movie, release year range, genre)
 #apply_filters("TRUE","FALSE") # the format is (score filter , release_year filter)
 #apply_filters("FALSE","TRUE")
+
+## Description: Deletes your local Movie Cache
+# Connect_to_Local_Cache()
+# Delete_Local_Cache() ## Still Buggy, best to manually delete
+        
 
