@@ -18,6 +18,7 @@ class Movie:
         self.director = ""
         self.actors = ""
         self.awards = ""
+        self.orig_lang = ""
         self.watched = False
         
    
@@ -35,6 +36,7 @@ class Movie:
         self.runtime = tmdb_info['runtime'] if not None else 0
         self.director = omdb_info['Director'] if is_valid(omdb_info['Director']) else "Director not found"
         self.actors = omdb_info['Actors'] if is_valid(omdb_info['Actors']) else "Actors not found"
+        self.orig_lang = tmdb_info['original_language'] if not None else "Original language not found"
         self.awards = omdb_info['Awards'] if is_valid(omdb_info['Awards']) else "Awards not found"
            
 #movie name is in first index
@@ -71,21 +73,29 @@ def is_valid(string):
 #returns movie id within tmdb in order to 
 #later retrieve the imdb id
 def get_tmdb_id(nm, year):
+    #case 1: name and year is valid
+    #case 2: name is valid but year is 0 - it wasn't found
     payload = ({'api_key': c.TMDB_KEY, 'query': nm, 'page': '1', 
                 'include_adult': 'false', 'primary_release_year': year}
                 if year != 0 else
                 {'api_key': c.TMDB_KEY, 'query': nm, 'page': '1', 
-                'include_adult': 'false'})
+                'include_adult': 'false'}) 
     resp = requests.get(c.TMDB_URL + 'search/movie', params = payload)
-    
-    if resp.status_code != c.OK_STATUS:
-        return c.error
-        
     resp_json = resp.json()
-    #throw error when there are multiple results if year is not given 
-    tmdb_id = (resp_json['results'][0]['id'] 
-                if year != 0 or resp_json['total_results'] == 1 else
-                c.ERROR)
+    if resp.status_code != c.OK_STATUS:
+        return c.ERROR
+    
+    #case 3: name is valid and year is valid but year is wrong 
+    if resp_json['total_results'] == 0: 
+        payload = {'api_key': c.TMDB_KEY, 'query': nm, 'page': '1', 
+                'include_adult': 'false'}
+        resp = requests.get(c.TMDB_URL + 'search/movie', params = payload)
+        resp_json = resp.json()
+        if resp.status_code != c.OK_STATUS or resp_json['total_results'] == 0: #still can't find it
+            return c.ERROR
+    
+    #throw error when there are multiple results
+    tmdb_id = resp_json['results'][0]['id']
     return tmdb_id
  
 #returns tmdb details of movie including the imdb id
@@ -111,6 +121,8 @@ def get_movie_omdb(imdb_id):
 def get_movies_in_dir(path):
     movies_found = []
     movies_not_found = []
+    
+        
     for entry in os.scandir(path):
         if entry.is_dir():
             #get current movie 

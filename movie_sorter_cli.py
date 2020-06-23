@@ -10,15 +10,14 @@ cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+c.SERVER+
 cursor = cnxn.cursor()
 
 
-movies = movie_sorter.get_movies_in_dir(sys.argv[1])
-    
+movies, movies_not_found = movie_sorter.get_movies_in_dir(sys.argv[1])
    
 def export_to_SQLMoviesTable():
     for movie in movies:
         try:
             cursor.execute('''
                         INSERT INTO DB_A0C996_JMProjects.dbo.Movies 
-                        (movie, rotten_tomato_score, idmb_score, metascore, runtime,
+                        (movie, rotten_tomato_score, imdb_score, metascore, runtime,
                         release_year, genre, plot, director, actors, awards, cumul_score)
                         VALUES
                         (?,?,?,?,?,?,?,?,?,?,?,?)
@@ -37,13 +36,13 @@ def adv_search( movie ,release_year, genre):
     elif genre != None:
         genre = str("%"+ genre+"%" )
     # the % xxx % format is syntax to allow the keyword searches to be performed
-    movies=cursor.execute('''SELECT * FROM Movies
+    movies_db=cursor.execute('''SELECT * FROM Movies
                     WHERE   (movie like (?) or (?) IS NULL) AND
                             (release_year = (?) or (?) IS NULL) AND
                             (genre like (?) or (?) IS NULL)
                             '''
                             ,movie, movie, release_year, release_year, genre, genre)
-    for row in movies:
+    for row in movies_db:
         print(row[1])
 
     
@@ -52,13 +51,13 @@ def apply_filters(score_option,year_option):
     if score_option == "TRUE":
         score_filter=int(input("Select a movie ranking metric:\n" +
               "[1] Rotten Tomatoes \n" +
-              "[2] IDMB \n" +
+              "[2] IMDB \n" +
               "[3] Metascore \n" +
               "[4] Cumulative Score (of above options)\n\n "))
         if score_filter == 1 :
             filter_option = 'rotten_tomato_score'
         elif score_filter == 2 :
-            filter_option = 'idmb_score'
+            filter_option = 'imdb_score'
         elif score_filter == 3 :
             filter_option = 'metascore'
         elif score_filter == 4 :
@@ -75,19 +74,24 @@ def apply_filters(score_option,year_option):
     elif ASC_DSC == 2:
         ASC_DSC = 'DESC'
         
-    movies = cursor.execute('''exec sp_SortData @OrderByColumnName =  ?, @ASC_DSC = ?  ''',filter_option, ASC_DSC)
+    movies_db = cursor.execute('''exec sp_SortData @OrderByColumnName =  ?, @ASC_DSC = ?  ''',filter_option, ASC_DSC)
     #the stored procedure invoked here can be viewed under the JMprojects database , under programmability, and stored procedures 
     #this format can be used to modularize fields which are columnnames
     
     print('')
-    for row in movies:
+    for row in movies_db:
         print(row[1])
+ 
+def display_movies_not_found():
+    print(c.ERROR_MSSG)
+    for movie in movies_not_found:
+        print(movie)
 
-
-#export_to_SQLMoviesTable()
+display_movies_not_found() 
+export_to_SQLMoviesTable()
         
-#adv_search(None,None,None)   # the format is (movie,release year, genre)
+#adv_search(None,None,'comedy')   # the format is (movie,release year, genre)
 
-#apply_filters("TRUE","FALSE") # the format is (score filter , release_year filter)
+apply_filters("TRUE","FALSE") # the format is (score filter , release_year filter)
 #apply_filters("FALSE","TRUE")
 
