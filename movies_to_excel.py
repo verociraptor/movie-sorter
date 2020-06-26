@@ -4,10 +4,12 @@ import sys
 import re 
 import constant as c 
 import os
+if os.name == 'nt': #if os is windows
+    import win32api, win32con
 
 def print_usage():
-    print("To use, enter directory of where the movies are stored. \nThe movies"
-            + " themselves should also be directories. \nThe ideal naming format for a"
+    print("To use, enter the master directory that holds directories that holds multiple movie directories."
+            + "\nThe movies themselves should be directories. Errors will be thrown for those that are not.\nThe ideal naming format for a"
             + " movie directory is the movie name then the theatrical release year in parantheses."
             + " \nFor example, 'The.Lion.King(1994)'. The program will return any movies it cannot find.\n"
             + "Enter 'q' to quit program. \nEnter 'usage' to get usage. \nEnter directory path.")
@@ -26,12 +28,15 @@ def get_movies():
             if(not os.path.exists(option)):
                 print(option + " does not exist.")
                 continue
-            movies, movies_not_found = ms.get_movies_in_dir(option)
-            create_excel_sheet(option, movies)
-            display_movies_not_found(movies_not_found)
+            for entry in os.scandir(option):
+                subpath = os.path.join(option, entry)
+                if entry.is_dir() and not file_is_hidden(subpath):#subdir of movies
+                    movies, movies_not_found = ms.get_movies_in_dir(subpath)
+                    create_excel_sheet(entry.name, movies)
+                    display_movies_not_found(movies_not_found)
+                    print("\n")
             
 def create_excel_sheet(directory, movies):
-    directory = directory.split("\\")[1]
     workbook = xlsxwriter.Workbook('MoviesIn_' + directory + '_.xlsx')
     worksheet = workbook.add_worksheet()
 
@@ -76,9 +81,22 @@ def create_excel_sheet(directory, movies):
     workbook.close()
 
 def display_movies_not_found(movies_not_found):
+    if len(movies_not_found)== 0: #all movies were found
+        return;
     print(c.ERROR_MSSG)
     for movie in movies_not_found:
         print(movie)
- 
-    
+
+#return true or false if a file given is a hidden one
+#this is different for windows, or unix os
+#code gotten from https://www.tutorialspoint.com/How-to-ignore-hidden-files-using-os-listdir-in-Python
+def file_is_hidden(p):
+    if os.name== 'nt':
+        attribute = win32api.GetFileAttributes(p)
+        return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+    else:
+        return p.startswith('.') #linux-osx
+        
 get_movies()
+
+
