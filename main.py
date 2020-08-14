@@ -3,15 +3,11 @@ import sys
 import os
 
 from MovieServer import movie_sorter as ms
+from MovieServer import movie_sorter_server as server
 from PySide2.QtWidgets import QApplication, QWidget, QPushButton
 from PySide2.QtCore import QFile
 from PySide2.QtUiTools import QUiLoader
 
-list = []
-
-for i in range(0, 5):
-    list.append(ms.Movie("Kiki's Delivery Service", 2018))
-    print(list[i])
 
 class test627(QWidget):
     def __init__(self):
@@ -20,6 +16,8 @@ class test627(QWidget):
         self.ui.stackedWidget.setCurrentIndex(0)
         self.ui.toSearchPage.clicked.connect(lambda:  self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.mainMenuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(0))
+        self.ui.connectCache.clicked.connect(lambda: server.Connect_to_Local_Cache())
+        self.ui.createCache.clicked.connect(lambda: server.Create_Local_Cache())
 
     def load_ui(self):
         loader = QUiLoader()

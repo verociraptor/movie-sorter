@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page_1">
     <widget class="QLabel" name="label">
@@ -50,14 +50,14 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="createCache">
         <property name="text">
          <string>Create a Local Cache</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="connectCache">
         <property name="text">
          <string>Connect to Local Cache</string>
         </property>
@@ -65,7 +65,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QPlainTextEdit" name="plainTextEdit">
+    <widget class="QPlainTextEdit" name="directoryPath">
      <property name="geometry">
       <rect>
        <x>310</x>
@@ -88,7 +88,7 @@
       <string>Enter File Directory Address</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="exportMovies">
      <property name="geometry">
       <rect>
        <x>330</x>

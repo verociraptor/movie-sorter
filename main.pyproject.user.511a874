@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.12.3, 2020-08-14T18:41:34. -->
+<!-- Written by QtCreator 4.12.2, 2020-08-14T15:44:11. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{1304b51e-d4cf-4a16-a918-d26a5750632f}</value>
+  <value type="QByteArray">{511a8744-bfe3-49fc-94d4-8cbcfdd1fc28}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -76,7 +76,7 @@
   <valuemap type="QVariantMap">
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Desktop</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Desktop</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{aca766a1-8423-4747-995f-7a63da6ecf9d}</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{cb97fe5a-6b9a-4caf-9337-ba5e83c4b2a9}</value>
    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">-1</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
@@ -156,11 +156,11 @@
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">main</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.C:/Users/Jchan/OneDrive/Python Scripts/movie-sorter/main.py</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/Jchan/OneDrive/Python Scripts/movie-sorter/main.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.C:/Users/zelator/Documents/Python/MovieAppProject/main.py</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/zelator/Documents/Python/MovieAppProject/main.py</value>
     <value type="bool" key="PythonEditor.RunConfiguation.Buffered">false</value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Interpreter">{542fc11d-c1d1-4a40-951a-0b6d8734df08}</value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Script">C:\Users\Jchan\OneDrive\Python Scripts\movie-sorter\main.py</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Interpreter">{314b05a3-c94a-4be9-b976-fd6032ffba98}</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Script">C:\Users\zelator\Documents\Python\MovieAppProject\main.py</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
@@ -170,7 +170,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory"></value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/Jchan/OneDrive/Python Scripts/movie-sorter</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/zelator/Documents/Python/MovieAppProject</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>

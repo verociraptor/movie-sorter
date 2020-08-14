@@ -60,6 +60,7 @@ def Create_Local_Cache():
                           SET @SQLStatement = N'select * from Movies order by '+@OrderByColumnName+ ' ' + @ASC_DSC
                           EXEC sp_executesql @statement = @SQLStatement ''')
     cnxn.commit()
+    print("Created a Local Cache\n")
 
 def Connect_to_Local_Cache():
     # global defines local variables globally   
@@ -171,7 +172,7 @@ def apply_filters(score_option,year_option):
         
 ##Returning User doesn't need to create Database Again, would run these two functions if they have new movies to upload to the sorter        
 ##Description: Connects to Local SQL Database and uploads movies in directory to them with API information 
-Connect_to_Local_Cache()
+#Connect_to_Local_Cache()
 #export_to_SQLMoviesTable('D:/SSD/Movies/Two')
 
 ## Alternative testing connection which doesnt need to be created anew since it'll alway be there for anyone developer to use
