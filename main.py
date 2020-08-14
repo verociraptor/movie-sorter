@@ -10,8 +10,7 @@ from PySide2.QtUiTools import QUiLoader
 list = []
 
 for i in range(0, 5):
-    list.append(ms.Movie("Kiki's Delivery Service", 2018))
-    print(list[i])
+    list.append(ms.Movie("Jose's Delivery Service", 2018))
 
 class test627(QWidget):
     def __init__(self):
