@@ -10,7 +10,6 @@ from PySide2.QtUiTools import QUiLoader
 list = []
 
 for i in range(0, 5):
-
     list.append(ms.Movie("Jose's Delivery Service", 2018))
 
 class MovieApp(QWidget):
