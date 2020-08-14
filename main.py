@@ -13,7 +13,7 @@ for i in range(0, 5):
     list.append(ms.Movie("Kiki's Delivery Service", 2018))
     print(list[i])
 
-class test627(QWidget):
+class MovieApp(QWidget):
     def __init__(self):
         super(test627, self).__init__()
         self.ui = self.load_ui()
