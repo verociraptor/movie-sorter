@@ -11,7 +11,6 @@ list = []
 
 for i in range(0, 5):
     list.append(ms.Movie("Kiki's Delivery Service", 2018))
-    print(list[i])
 
 class MovieApp(QWidget):
     def __init__(self):
