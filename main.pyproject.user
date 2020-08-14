@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.12.2, 2020-06-16T21:31:53. -->
+<!-- Written by QtCreator 4.12.2, 2020-08-14T15:44:11. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -156,11 +156,11 @@
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">main</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.C:/Users/zelator/Documents/Python/movie-sorter-project/mainwin/main.py</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/zelator/Documents/Python/movie-sorter-project/mainwin/main.py</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">PythonEditor.RunConfiguration.C:/Users/zelator/Documents/Python/MovieAppProject/main.py</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/zelator/Documents/Python/MovieAppProject/main.py</value>
     <value type="bool" key="PythonEditor.RunConfiguation.Buffered">false</value>
     <value type="QString" key="PythonEditor.RunConfiguation.Interpreter">{314b05a3-c94a-4be9-b976-fd6032ffba98}</value>
-    <value type="QString" key="PythonEditor.RunConfiguation.Script">C:\Users\zelator\Documents\Python\movie-sorter-project\mainwin\main.py</value>
+    <value type="QString" key="PythonEditor.RunConfiguation.Script">C:\Users\zelator\Documents\Python\MovieAppProject\main.py</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
@@ -170,7 +170,7 @@
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory"></value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/zelator/Documents/Python/movie-sorter-project/mainwin</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/zelator/Documents/Python/MovieAppProject</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>
