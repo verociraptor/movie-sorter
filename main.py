@@ -10,11 +10,12 @@ from PySide2.QtUiTools import QUiLoader
 list = []
 
 for i in range(0, 5):
+
     list.append(ms.Movie("Jose's Delivery Service", 2018))
 
-class test627(QWidget):
+class MovieApp(QWidget):
     def __init__(self):
-        super(test627, self).__init__()
+        super(MovieApp, self).__init__()
         self.ui = self.load_ui()
         self.ui.stackedWidget.setCurrentIndex(0)
         self.ui.toSearchPage.clicked.connect(lambda:  self.ui.stackedWidget.setCurrentIndex(1))
@@ -31,6 +32,6 @@ class test627(QWidget):
 
 if __name__ == "__main__":
     app = QApplication([])
-    widget = test627()
+    widget = MovieApp()
     widget.show()
     sys.exit(app.exec_())
