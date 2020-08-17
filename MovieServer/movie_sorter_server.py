@@ -60,7 +60,7 @@ def Create_Local_Cache():
                           SET @SQLStatement = N'select * from Movies order by '+@OrderByColumnName+ ' ' + @ASC_DSC
                           EXEC sp_executesql @statement = @SQLStatement ''')
     cnxn.commit()
-    print("Created a Local Cache\n")
+    #print("Created a Local Cache\n")
 
 def Connect_to_Local_Cache():
     # global defines local variables globally   
@@ -74,7 +74,7 @@ def Connect_to_Local_Cache():
     
     global cursor 
     cursor = cnxn.cursor()
-    print("Connected to Local Cache\n")
+    #print("Connected to Local Cache\n")
 
 def Delete_Local_Cache():
     cnxn.autocommit = True
@@ -82,7 +82,7 @@ def Delete_Local_Cache():
                        GO
                        Drop Database Movies;''')  
     cnxn.commit()
-    print("Deleted Local Cache")
+    #print("Deleted Local Cache")
 
 # 'D:/SSD/Movies/Two'
 def export_to_SQLMoviesTable(directory):
