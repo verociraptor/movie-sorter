@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 #pyqt specific files
-*.pyproject.user
+main.pyproject.user
 
 # specific files
 constant.py
