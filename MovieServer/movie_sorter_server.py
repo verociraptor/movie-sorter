@@ -75,6 +75,10 @@ def Connect_to_Local_Cache():
     global cursor 
     cursor = cnxn.cursor()
     #print("Connected to Local Cache\n")
+    
+    movies = cursor.execute('''SELECT * FROM Movies''')
+    return movies
+    #returns all movies in database upon connecting to DB
 
 def Delete_Local_Cache():
     cnxn.autocommit = True
@@ -83,7 +87,7 @@ def Delete_Local_Cache():
                        Drop Database Movies;''')  
     cnxn.commit()
     #print("Deleted Local Cache")
-
+    
 # 'D:/SSD/Movies/Two'
 def export_to_SQLMoviesTable(directory):
 
@@ -178,7 +182,7 @@ def apply_filters(score_option,year_option):
 ## Alternative testing connection which doesnt need to be created anew since it'll alway be there for anyone developer to use
 ## Description : Connects to Cloud SQL Database and uploads movies in directory to them with API information 
 #Connect_to_Cloud()
-#export_to_SQLMoviesTable('D:/SSD/Movies/Two')
+#export_to_SQLMoviesTable('D:\Movies\Test')
 
 ## A Returning User with no new movies to upload would run one of these functions to connect amd then run a filter function (lines 187 - 189)
 ## Description : Choose to either connect to cloud OR Local Cache but not both
