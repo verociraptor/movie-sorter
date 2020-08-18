@@ -65,7 +65,6 @@ class test627(QWidget):
             server.export_to_SQLMoviesTable(dirName)
             self.ui.status.setText("Movies successfully exported")
 
-
 if __name__ == "__main__":
     app = QApplication([])
     widget = test627()

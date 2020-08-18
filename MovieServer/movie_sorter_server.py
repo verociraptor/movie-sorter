@@ -87,7 +87,7 @@ def Delete_Local_Cache():
                        Drop Database Movies;''')  
     cnxn.commit()
     #print("Deleted Local Cache")
-
+    
 # 'D:/SSD/Movies/Two'
 def export_to_SQLMoviesTable(directory):
 
