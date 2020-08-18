@@ -8,12 +8,15 @@ from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog
 from PySide2.QtCore import QFile
 from PySide2.QtUiTools import QUiLoader
 
+list = []
 
-class test627(QWidget):
+for i in range(0, 5):
 
+    list.append(ms.Movie("Jose's Delivery Service", 2018))
 
+class MovieApp(QWidget):
     def __init__(self):
-        super(test627, self).__init__()
+        super(MovieApp, self).__init__()
         self.ui = self.load_ui()
         self.clickedConnect = False   # has user clicked connect ?
         self.ui.dirPath.setReadOnly(True)
@@ -67,6 +70,6 @@ class test627(QWidget):
 
 if __name__ == "__main__":
     app = QApplication([])
-    widget = test627()
+    widget = MovieApp()
     widget.show()
     sys.exit(app.exec_())
