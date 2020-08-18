@@ -23,95 +23,131 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page_1">
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>360</x>
-       <y>150</y>
-       <width>71</width>
-       <height>16</height>
+       <x>30</x>
+       <y>20</y>
+       <width>321</width>
+       <height>121</height>
       </rect>
      </property>
      <property name="text">
-      <string>Main Menu</string>
-     </property>
-    </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>190</y>
-       <width>551</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="text">
-         <string>Create a Local Cache</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Connect to Local Cache</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QPlainTextEdit" name="plainTextEdit">
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>260</y>
-       <width>161</width>
-       <height>41</height>
-      </rect>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:48pt;&quot;&gt;Main Menu&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_4">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>240</y>
-       <width>161</width>
-       <height>16</height>
+       <x>350</x>
+       <y>170</y>
+       <width>291</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
-      <string>Enter File Directory Address</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Choose your movies directory&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="browseDirectories">
      <property name="geometry">
       <rect>
        <x>330</x>
-       <y>310</y>
-       <width>111</width>
-       <height>23</height>
+       <y>260</y>
+       <width>141</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Browse Directories</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="toSearchPage">
+     <property name="geometry">
+      <rect>
+       <x>580</x>
+       <y>510</y>
+       <width>191</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Proceed to Search Page</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="status">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>60</y>
+       <width>211</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="createCache">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>180</y>
+       <width>231</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Create a Local Cache</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="connectCache">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>250</y>
+       <width>231</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Connect to Local Cache</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>50</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;Status:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="exportMovies">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>260</y>
+       <width>141</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
       <string>Export Movies</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="toSearchPage">
+    <widget class="QLineEdit" name="dirPath">
      <property name="geometry">
       <rect>
-       <x>620</x>
-       <y>520</y>
-       <width>151</width>
-       <height>51</height>
+       <x>330</x>
+       <y>210</y>
+       <width>291</width>
+       <height>41</height>
       </rect>
-     </property>
-     <property name="text">
-      <string>Proceed to Search Page</string>
      </property>
     </widget>
    </widget>
@@ -120,7 +156,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>210</y>
+       <y>150</y>
        <width>191</width>
        <height>71</height>
       </rect>
@@ -172,8 +208,8 @@
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>13</x>
-       <y>290</y>
+       <x>20</x>
+       <y>260</y>
        <width>121</width>
        <height>111</height>
       </rect>
@@ -226,7 +262,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>410</y>
+       <y>380</y>
        <width>161</width>
        <height>141</height>
       </rect>
@@ -307,8 +343,8 @@
     <widget class="QWidget" name="verticalLayoutWidget_4">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>70</y>
+       <x>20</x>
+       <y>60</y>
        <width>104</width>
        <height>81</height>
       </rect>
@@ -340,34 +376,21 @@
     <widget class="QGroupBox" name="groupBox_6">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>150</y>
-       <width>131</width>
-       <height>61</height>
+       <x>570</x>
+       <y>20</y>
+       <width>181</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="title">
       <string>Sort By</string>
      </property>
-     <widget class="QCheckBox" name="checkBox_3">
+     <widget class="QRadioButton" name="radioButton">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>40</y>
-        <width>91</width>
-        <height>17</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Descending</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="checkBox_4">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
+        <x>0</x>
         <y>20</y>
-        <width>91</width>
+        <width>74</width>
         <height>17</height>
        </rect>
       </property>
@@ -375,12 +398,25 @@
        <string>Ascending</string>
       </property>
      </widget>
+     <widget class="QRadioButton" name="radioButton_2">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>20</y>
+        <width>158</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Descending</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QLabel" name="label_5">
      <property name="geometry">
       <rect>
-       <x>430</x>
-       <y>20</y>
+       <x>450</x>
+       <y>40</y>
        <width>111</width>
        <height>16</height>
       </rect>
@@ -419,9 +455,9 @@
      <property name="geometry">
       <rect>
        <x>215</x>
-       <y>51</y>
+       <y>61</y>
        <width>561</width>
-       <height>521</height>
+       <height>511</height>
       </rect>
      </property>
     </widget>

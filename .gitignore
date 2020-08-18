@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+#pyqt specific files
+main.pyproject.user
+
 # specific files
 constant.py
