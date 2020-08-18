@@ -130,6 +130,7 @@ dmypy.json
 
 #pyqt specific files
 main.pyproject.user*
+main.pyproject.user
 
 # specific files
 constant.py
