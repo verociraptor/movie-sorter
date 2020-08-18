@@ -55,18 +55,27 @@ class MovieApp(QWidget):
 
     def connect_buttons(self):
         self.ui.toSearchPage.clicked.connect(lambda:  self.ui.stackedWidget.setCurrentIndex(1))
+        self.ui.goBack.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.mainMenuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(0))
         self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
         self.ui.createCache.clicked.connect(self.create_local_cache)
         self.ui.browseDirectories.clicked.connect(self.browse_directories)
 
+
     def init_movies_view(self):
+        """
+        Sets up default list of movies shown in search page.
+        Lists all movies in given local database.
+        """
         for i in list:
             movie = MovieItem(i[0], i[1])
             myQListItem = QListWidgetItem(self.ui.listWidget)
             myQListItem.setSizeHint(movie.sizeHint())
             self.ui.listWidget.addItem(myQListItem)
             self.ui.listWidget.setItemWidget(myQListItem, movie)
+
+        #sets up each movie in search page to be connected to its
+        #respective page when clicked on
         self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 
     def load_ui(self):
@@ -98,7 +107,16 @@ class MovieApp(QWidget):
         self.ui.dirPath.setText(dirName)
 
     def movie_clicked(self, item):
+        """
+        Changes view page to the movie information of the specific
+        movie that was clicked on.
+        Sets all info on the pre-made page to the given movie's info.
+        """
         movie = self.ui.listWidget.itemWidget(item)
+        self.ui.title.setText(movie.title)
+        self.ui.year.setText(movie.year)
+        self.ui.fileLoc.setText("C:/deez/nutz")
+        self.ui.stackedWidget.setCurrentIndex(2)
         print(movie.title + " is clicked!!!")
 
 if __name__ == "__main__":
