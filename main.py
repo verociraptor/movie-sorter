@@ -81,17 +81,18 @@ class MovieApp(QWidget):
         Lists all movies in given local database.
         """
         list = server.get_all_movies(True, False) # default Ascending Alphanumerical order
-        #for row in list:
-        #        print(row[moviename])
+        self.display_movies(list)
+
+    def display_movies(self, list):
         for col in list:
-            movie = MovieItem(col[1], str(col[5]),str(col[9]) + " min", str(col[12]) ) # name and year and runtime
+            movie = MovieItem(col[1], str(col[5]),str(col[9]) + " min",
+                                  str(col[12]) )
+                                  # name and year and runtime
             myQListItem = QListWidgetItem(self.ui.listWidget)
             myQListItem.setSizeHint(movie.sizeHint())
             self.ui.listWidget.addItem(myQListItem)
             self.ui.listWidget.setItemWidget(myQListItem, movie)
 
-        #sets up each movie in search page to be connected to its
-        #respective page when clicked on
         self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 
     def update_movies_view(self):
@@ -100,49 +101,29 @@ class MovieApp(QWidget):
         Updates movies in search page with new search queries
         """
         searchtype = None
-        if self.ui.avgScore.isChecked() or self.ui.releaseYear.isChecked() or self.ui.runtime.isChecked():
         # for radio buttons, either one or the other will be checked
+        if self.ui.avgScore.isChecked() or self.ui.releaseYear.isChecked() or self.ui.runtime.isChecked():
+
             searchtype = "filter"
             list = server.apply_filters_ui(self.ui.avgScore.isChecked()
                                             ,self.ui.releaseYear.isChecked()
                                             ,self.ui.runtime.isChecked()
                                             ,self.ui.ASC.isChecked()
                                             ,self.ui.DSC.isChecked())
-        if len(self.ui.keyword.text()) != 0: # keyword box has an input
+        # keyword box has an input
+        if len(self.ui.keyword.text()) != 0:
             searchtype = "keyword"
             list = server.keyword_search_ui( self.ui.keyword.text() )
 
-        if searchtype != None:
-            self.ui.listWidget.clear() # clears previous items in list
-
-            for col in list:
-                movie = MovieItem(col[1], str(col[5]),str(col[9]) + " min",
-                                  str(col[12]) )
-                                  # name and year and runtime
-                myQListItem = QListWidgetItem(self.ui.listWidget)
-                myQListItem.setSizeHint(movie.sizeHint())
-                self.ui.listWidget.addItem(myQListItem)
-                self.ui.listWidget.setItemWidget(myQListItem, movie)
-
-            #sets up each movie in search page to be connected to its
-            #respective page when clicked on
-            self.ui.listWidget.itemClicked.connect(self.movie_clicked)
-
-        else: # TODO: fix this repetitive code
-
+        #no search option selected
+        #user wants all movies whether or not asc or des is checked
+        if searchtype is None:
             list = server.get_all_movies(self.ui.ASC.isChecked()
                                             ,self.ui.DSC.isChecked())
-            self.ui.listWidget.clear()
-            for col in list:
-                movie = MovieItem(col[1], str(col[5]),str(col[9]) + " min",
-                                  str(col[12]) )
-                                  # name and year and runtime
-                myQListItem = QListWidgetItem(self.ui.listWidget)
-                myQListItem.setSizeHint(movie.sizeHint())
-                self.ui.listWidget.addItem(myQListItem)
-                self.ui.listWidget.setItemWidget(myQListItem, movie)
 
-            self.ui.listWidget.itemClicked.connect(self.movie_clicked)
+        self.ui.listWidget.clear()  #clears all movies in list
+        self.display_movies(list)
+
 
     def load_ui(self):
         loader = QUiLoader()
