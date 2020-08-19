@@ -121,7 +121,7 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Status:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="exportMovies">
+      <widget class="QPushButton" name="importMovies">
        <property name="geometry">
         <rect>
          <x>480</x>
@@ -131,7 +131,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Export Movies</string>
+        <string>Import Movies</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="dirPath">

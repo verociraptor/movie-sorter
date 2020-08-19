@@ -59,7 +59,7 @@ class MovieApp(QWidget):
         self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
         self.ui.createCache.clicked.connect(self.create_local_cache)
         self.ui.browseDirectories.clicked.connect(self.browse_directories)
-        self.ui.exportMovies.clicked.connect(self.export_movies)
+        self.ui.importMovies.clicked.connect(self.import_movies)
 
 
     def init_movies_view(self):
@@ -120,15 +120,15 @@ class MovieApp(QWidget):
         self.ui.stackedWidget.setCurrentIndex(2)
         print(movie.title + " is clicked!!!")
 
-    def export_movies(self, clickedConnect):
+    def import_movies(self):
         dirName = self.ui.dirPath.text()
         if self.clickedConnect is False :
             self.ui.status.setText("Connect to your local cache first!")
         elif len(dirName) == 0:
             self.ui.status.setText("No directory selected!")
         else :
-            server.export_to_SQLMoviesTable(dirName)
-            self.ui.status.setText("Movies successfully exported")
+            server.import_to_SQLMoviesTable(dirName)
+            self.ui.status.setText("Movies successfully imported")
 
 
 if __name__ == "__main__":
