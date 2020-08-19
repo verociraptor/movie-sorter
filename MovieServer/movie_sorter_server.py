@@ -78,9 +78,18 @@ def Connect_to_Local_Cache():
     
     
     
-def get_all_movies(): # gets all movies in SQL directory    
+def get_all_movies(ASC,DSC): # gets all movies in SQL directory    
     
     movies = cursor.execute('''SELECT * FROM Movies''')
+    
+    if ASC == True:
+        movies = cursor.execute('''SELECT * FROM Movies
+                                ORDER BY movie ASC ''')
+        
+    if DSC == True:
+        movies = cursor.execute('''SELECT * FROM Movies
+                                ORDER BY movie DESC ''')
+    
     return movies
     #returns all movies in database upon connecting to DB
 
@@ -171,6 +180,55 @@ def apply_filters(score_option,year_option):
         #Returns movie names
         print(row[moviename])
         # can be modified to return any row
+
+def keyword_search_ui( keyword):
+    keyword = str("%"+ keyword+"%" )
+    # the % xxx % format is syntax to allow the keyword searches to be performed
+    # if release_year_range == None:
+    #     release_year_range =[1800,2100]
+    # includes all possible years in case of a null field, thereby omitting no movies
+        
+    movies=cursor.execute('''SELECT * FROM Movies WHERE
+                            movie like (?) OR genre like (?)
+                            '''
+                            ,keyword, keyword)
+    
+    return movies
+
+def year_range_search_ui(start , end):
+    movies=cursor.execute('''SELECT * FROM Movies WHERE
+                            release_year between (?) AND (?)
+                            '''
+                            ,start, end)
+    return movies                        
+        
+def apply_filters_ui(score_option, year_option, runtime, ASC, DSC): 
+    #modified for ui use isntead of a CLI
+    
+    if score_option == True:
+        filter_option = 'cumul_score'
+            
+    elif year_option == True:
+        filter_option= "release_year"
+        
+    elif runtime == True:
+        filter_option= "runtime"
+        
+    ASC_DSC = 'ASC' # default sorting is ascending       
+    
+    if ASC == True:
+        ASC_DSC = 'ASC'
+        
+    if DSC == True:
+        ASC_DSC = 'DESC'
+        
+        
+    movies = cursor.execute('''exec sp_SortData @OrderByColumnName =  ?, @ASC_DSC = ?  ''',filter_option, ASC_DSC)
+    #the stored procedure invoked here can be viewed under the JMprojects database , under programmability, and stored procedures 
+    #this format can be used to modularize fields which are columnnames
+    
+    return movies.fetchall()
+      
 
 ## First time user would run these three functions sequentially
 ## Description : Creates local Database and uploads movies in directory to them with API information , uncomment all three, run, then comment out again
