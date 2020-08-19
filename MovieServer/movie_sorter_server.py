@@ -76,6 +76,10 @@ def Connect_to_Local_Cache():
     cursor = cnxn.cursor()
     #print("Connected to Local Cache\n")
     
+    
+    
+def get_all_movies(): # gets all movies in SQL directory    
+    
     movies = cursor.execute('''SELECT * FROM Movies''')
     return movies
     #returns all movies in database upon connecting to DB
@@ -89,7 +93,7 @@ def Delete_Local_Cache():
     #print("Deleted Local Cache")
     
 # 'D:/SSD/Movies/Two'
-def export_to_SQLMoviesTable(directory):
+def import_to_SQLMoviesTable(directory):
 
     movies,movies_not_found = ms.get_movies_in_dir(directory)
     for movie in movies:
@@ -172,17 +176,17 @@ def apply_filters(score_option,year_option):
 ## Description : Creates local Database and uploads movies in directory to them with API information , uncomment all three, run, then comment out again
 #Create_Local_Cache()  
 #Connect_to_Local_Cache()
-#export_to_SQLMoviesTable('D:/SSD/Movies/Two') 
+#import_to_SQLMoviesTable('D:/SSD/Movies/Two') 
         
 ##Returning User doesn't need to create Database Again, would run these two functions if they have new movies to upload to the sorter        
 ##Description: Connects to Local SQL Database and uploads movies in directory to them with API information 
 #Connect_to_Local_Cache()
-#export_to_SQLMoviesTable('D:/SSD/Movies/Two')
+#import_to_SQLMoviesTable('D:/SSD/Movies/Two')
 
 ## Alternative testing connection which doesnt need to be created anew since it'll alway be there for anyone developer to use
 ## Description : Connects to Cloud SQL Database and uploads movies in directory to them with API information 
 #Connect_to_Cloud()
-#export_to_SQLMoviesTable('D:\Movies\Test')
+#import_to_SQLMoviesTable('D:\Movies\Test')
 
 ## A Returning User with no new movies to upload would run one of these functions to connect amd then run a filter function (lines 187 - 189)
 ## Description : Choose to either connect to cloud OR Local Cache but not both

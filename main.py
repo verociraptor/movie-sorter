@@ -15,25 +15,32 @@ list = [["Kiki", "2018"], ["Mononoke", "2019"],
         ["Hanna", "2013"], ["Movie4", "2009"],
         ["Movie", "2012"], ["Movie5", "2008"]]
 
+moviename = 1
+
+
 class MovieItem(QWidget):
     """
     Custom widget to create the list view of movies in
     the search page
     TODO: attach all other info of movie and maybe make it prettier
     """
-    def __init__(self, title, year):
+    def __init__(self, title, year, runtime):
         super(MovieItem, self).__init__()
-        self.init_widget(title, year)
+        self.init_widget(title, year, runtime)
 
-    def init_widget(self, title, year):
+    def init_widget(self, title, year, runtime):
         self.title = title
         self.year = year
+        self.runtime = runtime
         movie_title = QLabel(self.title)
         movie_year = QLabel(self.year)
+        movie_runtime = QLabel(self.runtime)
         movieBox = QHBoxLayout()
         movieBox.addWidget(movie_title)
         movieBox.addWidget(movie_year)
+        movieBox.addWidget(movie_runtime)
         self.setLayout(movieBox)
+
 
 
 class MovieApp(QWidget):
@@ -45,6 +52,8 @@ class MovieApp(QWidget):
     def __init__(self):
         super(MovieApp, self).__init__()
         self.ui = self.load_ui()
+        #self.moviename = 1 # indexing for movies
+        self.connect_to_local_cache() # this might be a better way to start the program
         self.clickedConnect = False   # has user clicked connect ?
         self.ui.dirPath.setReadOnly(True)
         self.ui.status.setReadOnly(True)
@@ -67,8 +76,11 @@ class MovieApp(QWidget):
         Sets up default list of movies shown in search page.
         Lists all movies in given local database.
         """
-        for i in list:
-            movie = MovieItem(i[0], i[1])
+        list = server.get_all_movies()
+        #for row in list:
+        #        print(row[moviename])
+        for col in list:
+            movie = MovieItem(col[1], str(col[5]),str(col[9]) + " min" ) # name and year and runtime
             myQListItem = QListWidgetItem(self.ui.listWidget)
             myQListItem.setSizeHint(movie.sizeHint())
             self.ui.listWidget.addItem(myQListItem)
@@ -101,7 +113,7 @@ class MovieApp(QWidget):
             self.ui.status.setText("Successfully connected to local cache")
             self.clickedConnect = True
         except:
-            self.ui.status.setText("Create a cache first!")
+            self.ui.status.setText("Create a cache")
 
     def browse_directories(self):
         dirName = QFileDialog.getExistingDirectory()
