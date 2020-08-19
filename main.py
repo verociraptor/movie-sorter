@@ -73,6 +73,7 @@ class MovieApp(QWidget):
         self.ui.browseDirectories.clicked.connect(self.browse_directories)
         self.ui.importMovies.clicked.connect(self.import_movies)
         self.ui.search.clicked.connect(self.update_movies_view)
+        self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 
 
     def init_movies_view(self):
@@ -92,8 +93,6 @@ class MovieApp(QWidget):
             myQListItem.setSizeHint(movie.sizeHint())
             self.ui.listWidget.addItem(myQListItem)
             self.ui.listWidget.setItemWidget(myQListItem, movie)
-
-        self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 
     def update_movies_view(self):
     #TODO : fix bug where if nothing is selected or if ASC/DESC is only selected - an error is thrown pressing search
@@ -154,6 +153,7 @@ class MovieApp(QWidget):
 
         dirName = QFileDialog.getExistingDirectory()
         self.ui.dirPath.setText(dirName)
+
 
     def import_movies(self):
         dirName = self.ui.dirPath.text()
