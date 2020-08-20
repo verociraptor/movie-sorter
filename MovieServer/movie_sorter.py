@@ -4,7 +4,7 @@ import re
 import MovieServer.constant as c
 
 class Movie:
-    def __init__(self, name, year):
+    def __init__(self, name, year, path):
         self.name = name
         self.tmdb_id = 0
         self.imdb_id = 0
@@ -12,6 +12,7 @@ class Movie:
         self.imdb_score = 0
         self.metascore = 0
         self.release_year = year
+        self.file_loc = path
         self.genre = ""
         self.plot = ""
         self.runtime = 0

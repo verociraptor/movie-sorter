@@ -56,10 +56,29 @@ class MovieItem(QWidget):
                             "<section><strong>Director:</strong><p>" + self.director+ "</p></section><br>" +
                             "<section><strong>Actors:</strong><p>" + self.actors + "</p></section><br>" +
                             "<section><strong>Awards:</strong><p>" + self.awards + "</p></section>")
-        ui.scoresTable.setItem(0, 0, QTableWidgetItem(self.imdbScore))
-        ui.scoresTable.setItem(0, 1, QTableWidgetItem(self.rottenTom))
-        ui.scoresTable.setItem(0, 2, QTableWidgetItem(self.metascore))
-        ui.scoresTable.setItem(0, 3, QTableWidgetItem(self.avgScore))
+        self.set_scores_table(ui)
+
+    def set_scores_table(self, ui):
+        if(self.imdbScore != 0.0):
+            ui.scoresTable.setItem(0, 0, QTableWidgetItem(self.imdbScore))
+        else:
+            ui.scoresTable.setItem(0, 0, QTableWidgetItem("n/a"))
+
+        if(self.rottenTom != 0.0):
+            ui.scoresTable.setItem(0, 1, QTableWidgetItem(self.rottenTom))
+        else:
+            ui.scoresTable.setItem(0, 1, QTableWidgetItem("n/a"))
+
+        if(self.metascore != 0.0):
+            ui.scoresTable.setItem(0, 2, QTableWidgetItem(self.metascore))
+        else:
+            ui.scoresTable.setItem(0, 2, QTableWidgetItem("n/a"))
+
+        if(self.avgScore != 0.0):
+            ui.scoresTable.setItem(0, 3, QTableWidgetItem(self.avgScore))
+        else:
+            ui.scoresTable.setItem(0, 3, QTableWidgetItem("n/a"))
+
         ui.textEdit.setReadOnly(True)
         ui.scoresTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         ui.scoresTable.setSelectionMode(QAbstractItemView.NoSelection)
