@@ -181,17 +181,33 @@ def apply_filters(score_option,year_option):
         print(row[moviename])
         # can be modified to return any row
 
-def keyword_search_ui( keyword):
+def keyword_search_ui( keyword , ASC , DSC):
     keyword = str("%"+ keyword+"%" )
     # the % xxx % format is syntax to allow the keyword searches to be performed
-    # if release_year_range == None:
-    #     release_year_range =[1800,2100]
-    # includes all possible years in case of a null field, thereby omitting no movies
+
+    # TODO : Make ASC/DSC programmable field to reduce repetitive code
         
     movies=cursor.execute('''SELECT * FROM Movies WHERE
                             movie like (?) OR genre like (?)
+                            OR actors like (?) OR director like (?)
                             '''
-                            ,keyword, keyword)
+                            ,keyword, keyword, keyword, keyword)
+    
+    if ASC == True:
+        movies=cursor.execute('''SELECT * FROM Movies WHERE
+                            movie like (?) OR genre like (?)
+                            OR actors like (?) OR director like (?)
+                            ORDER BY movie ASC
+                            '''
+                            ,keyword, keyword, keyword, keyword)
+        
+    if DSC == True:
+        movies=cursor.execute('''SELECT * FROM Movies WHERE
+                            movie like (?) OR genre like (?)
+                            OR actors like (?) OR director like (?)
+                            ORDER BY movie DESC
+                            '''
+                            ,keyword, keyword, keyword, keyword)
     
     return movies
 

@@ -149,7 +149,9 @@ class MovieApp(QWidget):
         # keyword box has an input
         if len(self.ui.keyword.text()) != 0:
             searchtype = "keyword"
-            list = server.keyword_search_ui( self.ui.keyword.text() )
+            # add possible keyword types greyed out when the search menu boots
+            list = server.keyword_search_ui( self.ui.keyword.text(), self.ui.ASC.isChecked()
+                                            ,self.ui.DSC.isChecked() )
 
         #no search option selected
         #user wants all movies whether or not asc or des is checked
