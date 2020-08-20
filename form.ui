@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page_1">
       <widget class="QLabel" name="label">
@@ -328,17 +328,17 @@
       <widget class="QTableWidget" name="scoresTable">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>410</y>
-         <width>541</width>
-         <height>121</height>
+         <x>20</x>
+         <y>490</y>
+         <width>561</width>
+         <height>71</height>
         </rect>
        </property>
-       <column>
+       <row>
         <property name="text">
-         <string>Movie Scores</string>
+         <string>Scores</string>
         </property>
-       </column>
+       </row>
        <column>
         <property name="text">
          <string>IMDB </string>
@@ -352,6 +352,11 @@
        <column>
         <property name="text">
          <string>Metascore</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Average Score</string>
         </property>
        </column>
       </widget>
@@ -374,16 +379,6 @@
         <string>Go back</string>
        </property>
       </widget>
-      <widget class="QWidget" name="plot" native="true">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>140</y>
-         <width>759</width>
-         <height>111</height>
-        </rect>
-       </property>
-      </widget>
       <widget class="QWidget" name="movieInfo" native="true">
        <property name="enabled">
         <bool>true</bool>
@@ -392,7 +387,7 @@
         <rect>
          <x>10</x>
          <y>70</y>
-         <width>391</width>
+         <width>771</width>
          <height>61</height>
         </rect>
        </property>
@@ -420,19 +415,26 @@
         <item>
          <widget class="QLabel" name="fileLoc">
           <property name="text">
-           <string>TextLabel</string>
+           <string>File loc</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="runtime_2">
+          <property name="text">
+           <string>runtime</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="movieMakers" native="true">
+      <widget class="QTextEdit" name="textEdit">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>260</y>
-         <width>761</width>
-         <height>121</height>
+         <y>140</y>
+         <width>771</width>
+         <height>321</height>
         </rect>
        </property>
       </widget>
