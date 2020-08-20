@@ -1,21 +1,9 @@
 import sys
 import os
 from MovieServer import movie_sorter_server as server
-from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QLabel, QHBoxLayout, QListWidgetItem
+from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QLabel, QHBoxLayout, QListWidgetItem, QTableWidgetItem, QAbstractItemView
 from PySide2.QtCore import QFile
 from PySide2.QtUiTools import QUiLoader
-
-#static data to test list view functionality
-#TODO: connect to database
-list = [["Kiki", "2018"], ["Mononoke", "2019"],
-        ["M", "2017"], ["K", "2019"],
-        ["Mark", "2016"], ["Mocie2", "2011"],
-        ["Tiff", "2015"], ["Moke", "2012"],
-        ["Balogna", "2014"], ["Movie3", "2010"],
-        ["Hanna", "2013"], ["Movie4", "2009"],
-        ["Movie", "2012"], ["Movie5", "2008"]]
-
-moviename = 1
 
 
 class MovieItem(QWidget):
@@ -24,19 +12,33 @@ class MovieItem(QWidget):
     the search page
     TODO: attach all other info of movie and maybe make it prettier
     """
-    def __init__(self, title, year, runtime, avgScore):
+    def __init__(self, title, rottenTom, metascore, imdbScore, year, genre,
+                    plot, director, runtime, awards, actors, avgScore):
         super(MovieItem, self).__init__()
-        self.init_widget(title, year, runtime, avgScore)
+        self.init_widget(title, rottenTom, metascore, imdbScore, year, genre,
+                         plot, director, runtime, awards, actors, avgScore)
 
-    def init_widget(self, title, year, runtime,avgScore):
+    def init_widget(self, title, rottenTom, metascore, imdbScore, year, genre,
+                        plot, director, runtime, awards, actors, avgScore):
         self.title = title
+        self.rottenTom = rottenTom
+        self.metascore = metascore
+        self.imdbScore = imdbScore
         self.year = year
+        self.genre = genre
+        self.plot = plot
+        self.director = director
         self.runtime = runtime
-        self.avgScore =avgScore
+        self.awards = awards
+        self.actors = actors
+        self.avgScore = avgScore
+
+        #display this info only in the search page
         movie_title = QLabel(self.title)
         movie_year = QLabel(self.year)
         movie_runtime = QLabel(self.runtime)
         movie_avgScore = QLabel(self.avgScore)
+
         movieBox = QHBoxLayout()
         movieBox.addWidget(movie_title)
         movieBox.addWidget(movie_year)
@@ -44,7 +46,23 @@ class MovieItem(QWidget):
         movieBox.addWidget(movie_avgScore)
         self.setLayout(movieBox)
 
-
+    def display_widget(self, ui):
+        ui.title.setText(self.title)
+        ui.runtime_2.setText(self.runtime)
+        ui.title.setStyleSheet("font: 20pt Comic Sans MS")
+        ui.year.setText(self.year)
+        ui.fileLoc.setText("C:/deez/nutz")
+        ui.textEdit.setHtml("<section><strong>Plot:</strong><p>" + self.plot + "</p></section><br>" +
+                            "<section><strong>Director:</strong><p>" + self.director+ "</p></section><br>" +
+                            "<section><strong>Actors:</strong><p>" + self.actors + "</p></section><br>" +
+                            "<section><strong>Awards:</strong><p>" + self.awards + "</p></section>")
+        ui.scoresTable.setItem(0, 0, QTableWidgetItem(self.imdbScore))
+        ui.scoresTable.setItem(0, 1, QTableWidgetItem(self.rottenTom))
+        ui.scoresTable.setItem(0, 2, QTableWidgetItem(self.metascore))
+        ui.scoresTable.setItem(0, 3, QTableWidgetItem(self.avgScore))
+        ui.textEdit.setReadOnly(True)
+        ui.scoresTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        ui.scoresTable.setSelectionMode(QAbstractItemView.NoSelection)
 
 class MovieApp(QWidget):
     """
@@ -55,7 +73,6 @@ class MovieApp(QWidget):
     def __init__(self):
         super(MovieApp, self).__init__()
         self.ui = self.load_ui()
-        #self.moviename = 1 # indexing for movies
         self.connect_to_local_cache() # this might be a better way to start the program
         self.clickedConnect = False   # has user clicked connect ?
         self.ui.dirPath.setReadOnly(True)
@@ -86,8 +103,9 @@ class MovieApp(QWidget):
 
     def display_movies(self, list):
         for col in list:
-            movie = MovieItem(col[1], str(col[5]),str(col[9]) + " min",
-                                  str(col[12]) )
+            movie = MovieItem(col[1], str(col[2]), str(col[3]), str(col[4]),
+                                str(col[5]), col[6], col[7], col[8], str(col[9]) + " min",
+                                col[10], col[11], str(col[12]))
                                   # name and year and runtime
             myQListItem = QListWidgetItem(self.ui.listWidget)
             myQListItem.setSizeHint(movie.sizeHint())
@@ -173,9 +191,7 @@ class MovieApp(QWidget):
         Sets all info on the pre-made page to the given movie's info.
         """
         movie = self.ui.listWidget.itemWidget(item)
-        self.ui.title.setText(movie.title)
-        self.ui.year.setText(movie.year)
-        self.ui.fileLoc.setText("C:/deez/nutz")
+        movie.display_widget(self.ui)
         self.ui.stackedWidget.setCurrentIndex(2)
         print(movie.title + " is clicked!!!")
 
