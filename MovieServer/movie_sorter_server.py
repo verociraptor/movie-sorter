@@ -180,8 +180,38 @@ def apply_filters(score_option,year_option):
         #Returns movie names
         print(row[moviename])
         # can be modified to return any row
+        
+        
+def keyword_and_filter_search_ui(keyword, score_option, year_option, runtime, ASC, DSC):
+    
+    keyword = str("%"+ keyword+"%" )
+    
+    if score_option == True:
+        filter_option = 'cumul_score'
+            
+    elif year_option == True:
+        filter_option= "release_year"
+        
+    elif runtime == True:
+        filter_option= "runtime"
+        
+    ASC_DSC = 'ASC' # default sorting is ascending       
+    
+    if ASC == True:
+        ASC_DSC = 'ASC'
+        
+    if DSC == True:
+        ASC_DSC = 'DESC'
+        
+        
+    movies = cursor.execute('''exec sp_sortdataV2 @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , keyword ,filter_option, ASC_DSC)
+
+    return movies.fetchall()
+    
 
 def keyword_search_ui( keyword , ASC , DSC):
+    
     keyword = str("%"+ keyword+"%" )
     # the % xxx % format is syntax to allow the keyword searches to be performed
 

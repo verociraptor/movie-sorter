@@ -137,8 +137,19 @@ class MovieApp(QWidget):
         Updates movies in search page with new search queries
         """
         searchtype = None
+        if ((self.ui.avgScore.isChecked() or self.ui.releaseYear.isChecked() or self.ui.runtime.isChecked()) and len(self.ui.keyword.text()) != 0 ):
+            searchtype = "keyword_and_filter"
+
+            list = server.keyword_and_filter_search_ui(self.ui.keyword.text()
+                                            ,self.ui.avgScore.isChecked()
+                                            ,self.ui.releaseYear.isChecked()
+                                            ,self.ui.runtime.isChecked()
+                                            ,self.ui.ASC.isChecked()
+                                            ,self.ui.DSC.isChecked())
+
         # for radio buttons, either one or the other will be checked
-        if self.ui.avgScore.isChecked() or self.ui.releaseYear.isChecked() or self.ui.runtime.isChecked():
+        elif self.ui.avgScore.isChecked() or self.ui.releaseYear.isChecked() or self.ui.runtime.isChecked():
+            print("filter")
 
             searchtype = "filter"
             list = server.apply_filters_ui(self.ui.avgScore.isChecked()
@@ -147,7 +158,7 @@ class MovieApp(QWidget):
                                             ,self.ui.ASC.isChecked()
                                             ,self.ui.DSC.isChecked())
         # keyword box has an input
-        if len(self.ui.keyword.text()) != 0:
+        elif len(self.ui.keyword.text()) != 0:
             searchtype = "keyword"
             # add possible keyword types greyed out when the search menu boots
             list = server.keyword_search_ui( self.ui.keyword.text(), self.ui.ASC.isChecked()
