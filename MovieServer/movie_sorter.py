@@ -160,7 +160,7 @@ def get_movies_in_dir(path):
             #get current movie 
             movie_year = get_name_and_year(entry.name)
                     
-            curr_movie = Movie(movie_year[0], int(movie_year[1]))
+            curr_movie = Movie(movie_year[0], int(movie_year[1]), path)
             #get TMDB id from TMDB
             tmdb_id = get_tmdb_id(movie_year[0], movie_year[1])
                     

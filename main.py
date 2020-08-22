@@ -93,7 +93,6 @@ class MovieApp(QWidget):
         super(MovieApp, self).__init__()
         self.ui = self.load_ui()
         self.connect_to_local_cache() # this might be a better way to start the program
-        self.clickedConnect = False   # has user clicked connect ?
         self.ui.dirPath.setReadOnly(True)
         self.ui.status.setReadOnly(True)
         self.ui.stackedWidget.setCurrentIndex(0)
@@ -207,9 +206,7 @@ class MovieApp(QWidget):
 
     def import_movies(self):
         dirName = self.ui.dirPath.text()
-        if self.clickedConnect is False :
-           self.ui.status.setText("Connect to your local cache first!")
-        elif len(dirName) == 0:
+        if len(dirName) == 0:
            self.ui.status.setText("No directory selected!")
         else :
            server.import_to_SQLMoviesTable(dirName)
