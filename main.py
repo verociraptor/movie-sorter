@@ -34,7 +34,8 @@ class MovieItem(QWidget):
         self.avgScore = avgScore
 
         #display this info only in the search page
-        movie_title = QLabel(self.title)
+        shortTitle = self.title[0:16] #movie title with reduced characters
+        movie_title = QLabel(shortTitle)
         movie_year = QLabel(self.year)
         movie_runtime = QLabel(self.runtime)
         movie_avgScore = QLabel(self.avgScore)
@@ -54,8 +55,10 @@ class MovieItem(QWidget):
         ui.fileLoc.setText("C:/deez/nutz")
         ui.textEdit.setHtml("<section><strong>Plot:</strong><p>" + self.plot + "</p></section><br>" +
                             "<section><strong>Director:</strong><p>" + self.director+ "</p></section><br>" +
+                            "<section><strong>Genre:</strong><p>" + self.genre + "</p></section>" +
                             "<section><strong>Actors:</strong><p>" + self.actors + "</p></section><br>" +
                             "<section><strong>Awards:</strong><p>" + self.awards + "</p></section>")
+
         ui.scoresTable.setItem(0, 0, QTableWidgetItem(self.imdbScore))
         ui.scoresTable.setItem(0, 1, QTableWidgetItem(self.rottenTom))
         ui.scoresTable.setItem(0, 2, QTableWidgetItem(self.metascore))
@@ -74,7 +77,6 @@ class MovieApp(QWidget):
         super(MovieApp, self).__init__()
         self.ui = self.load_ui()
         self.connect_to_local_cache() # this might be a better way to start the program
-        self.clickedConnect = False   # has user clicked connect ?
         self.ui.dirPath.setReadOnly(True)
         self.ui.status.setReadOnly(True)
         self.ui.stackedWidget.setCurrentIndex(0)
@@ -92,13 +94,35 @@ class MovieApp(QWidget):
         self.ui.search.clicked.connect(self.update_movies_view)
         self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 
+    def display_search_headers(self):
+
+        movie_title = QLabel("Title")
+        movie_year = QLabel("Release Year")
+        movie_runtime = QLabel("Runtime")
+        movie_avgScore = QLabel("Average Score")
+
+        movie = QWidget()
+        movieBox = QHBoxLayout() # sets horizontal layout
+        movieBox.addWidget(movie_title)
+        movieBox.addWidget(movie_year)
+        movieBox.addWidget(movie_runtime)
+        movieBox.addWidget(movie_avgScore)
+        movie.setLayout(movieBox)
+
+        myQListItem = QListWidgetItem(self.ui.listWidget)
+        myQListItem.setSizeHint(movieBox.sizeHint())
+        self.ui.listWidget.addItem(myQListItem)
+        self.ui.listWidget.setItemWidget(myQListItem, movie)
+
 
     def init_movies_view(self):
         """
         Sets up default list of movies shown in search page.
         Lists all movies in given local database.
         """
-        list = server.get_all_movies(True, False) # default Ascending Alphanumerical order
+        self.display_search_headers()
+
+        list = server.get_all_movies('ASC') # default Ascending Alphanumerical order
         self.display_movies(list)
 
     def display_movies(self, list):
@@ -112,8 +136,22 @@ class MovieApp(QWidget):
             self.ui.listWidget.addItem(myQListItem)
             self.ui.listWidget.setItemWidget(myQListItem, movie)
 
+
+    def asc_dsc_helper(self):
+        """
+        helper function
+        """
+        asc_dsc = 'ASC' # default sorting is ascending
+
+        if self.ui.ASC.isChecked() is True:
+            asc_dsc = 'ASC'
+
+        if self.ui.DSC.isChecked() == True:
+            asc_dsc = 'DESC'
+
+        return asc_dsc
+
     def update_movies_view(self):
-    #TODO : fix bug where if nothing is selected or if ASC/DESC is only selected - an error is thrown pressing search
         """
         Updates movies in search page with new search queries
         """
@@ -125,33 +163,30 @@ class MovieApp(QWidget):
                                             ,self.ui.avgScore.isChecked()
                                             ,self.ui.releaseYear.isChecked()
                                             ,self.ui.runtime.isChecked()
-                                            ,self.ui.ASC.isChecked()
-                                            ,self.ui.DSC.isChecked())
+                                            ,self.asc_dsc_helper())
 
         # for radio buttons, either one or the other will be checked
         elif self.ui.avgScore.isChecked() or self.ui.releaseYear.isChecked() or self.ui.runtime.isChecked():
-            print("filter")
 
             searchtype = "filter"
             list = server.apply_filters_ui(self.ui.avgScore.isChecked()
                                             ,self.ui.releaseYear.isChecked()
                                             ,self.ui.runtime.isChecked()
-                                            ,self.ui.ASC.isChecked()
-                                            ,self.ui.DSC.isChecked())
+                                            ,self.asc_dsc_helper())
         # keyword box has an input
         elif len(self.ui.keyword.text()) != 0:
             searchtype = "keyword"
             # add possible keyword types greyed out when the search menu boots
-            list = server.keyword_search_ui( self.ui.keyword.text(), self.ui.ASC.isChecked()
-                                            ,self.ui.DSC.isChecked() )
+            list = server.keyword_search_ui( self.ui.keyword.text(), self.asc_dsc_helper() )
 
         #no search option selected
         #user wants all movies whether or not asc or des is checked
         if searchtype is None:
-            list = server.get_all_movies(self.ui.ASC.isChecked()
-                                            ,self.ui.DSC.isChecked())
+            list = server.get_all_movies(self.asc_dsc_helper())
 
         self.ui.listWidget.clear()  #clears all movies in list
+
+        self.display_search_headers()
         self.display_movies(list)
 
 
@@ -176,7 +211,6 @@ class MovieApp(QWidget):
         try:
             server.Connect_to_Local_Cache()
             self.ui.status.setText("Successfully connected to local cache")
-            self.clickedConnect = True
         except:
             self.ui.status.setText("Create a cache")
 
@@ -188,13 +222,15 @@ class MovieApp(QWidget):
 
     def import_movies(self):
         dirName = self.ui.dirPath.text()
-        if self.clickedConnect is False :
-           self.ui.status.setText("Connect to your local cache first!")
-        elif len(dirName) == 0:
-           self.ui.status.setText("No directory selected!")
-        else :
-           server.import_to_SQLMoviesTable(dirName)
-           self.ui.status.setText("Movies successfully imported")
+        try:
+            server.Connect_to_Local_Cache()
+            if len(dirName) == 0:
+               self.ui.status.setText("No directory selected!")
+            else :
+               server.import_to_SQLMoviesTable(dirName)
+               self.ui.status.setText("Movies successfully imported")
+        except:
+            self.ui.status.setText("Could not connect to Directory")
 
 
     def movie_clicked(self, item):
@@ -203,10 +239,12 @@ class MovieApp(QWidget):
         movie that was clicked on.
         Sets all info on the pre-made page to the given movie's info.
         """
-        movie = self.ui.listWidget.itemWidget(item)
-        movie.display_widget(self.ui)
-        self.ui.stackedWidget.setCurrentIndex(2)
-        print(movie.title + " is clicked!!!")
+        try :
+            movie = self.ui.listWidget.itemWidget(item)
+            movie.display_widget(self.ui)
+            self.ui.stackedWidget.setCurrentIndex(2)
+        except :
+            pass
 
 if __name__ == "__main__":
     app = QApplication([])

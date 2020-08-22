@@ -17,7 +17,7 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page_1">
       <widget class="QLabel" name="label">
@@ -245,7 +245,7 @@
         </rect>
        </property>
        <property name="title">
-        <string>Sort By (optional)</string>
+        <string>Sort By</string>
        </property>
        <widget class="QRadioButton" name="ASC">
         <property name="geometry">
@@ -329,7 +329,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>490</y>
+         <y>510</y>
          <width>561</width>
          <height>71</height>
         </rect>
@@ -386,9 +386,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>70</y>
+         <y>100</y>
          <width>771</width>
-         <height>61</height>
+         <height>38</height>
         </rect>
        </property>
        <property name="minimumSize">
@@ -399,9 +399,9 @@
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLabel" name="title">
+         <widget class="QLabel" name="runtime_2">
           <property name="text">
-           <string>Title</string>
+           <string>runtime</string>
           </property>
          </widget>
         </item>
@@ -419,13 +419,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QLabel" name="runtime_2">
-          <property name="text">
-           <string>runtime</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QTextEdit" name="textEdit">
@@ -434,8 +427,21 @@
          <x>10</x>
          <y>140</y>
          <width>771</width>
-         <height>321</height>
+         <height>351</height>
         </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="title">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>749</width>
+         <height>39</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Title</string>
        </property>
       </widget>
      </widget>
