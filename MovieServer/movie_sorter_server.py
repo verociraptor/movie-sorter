@@ -52,13 +52,34 @@ def Create_Local_Cache():
                       primary key (movie,release_year)
                       )
                       ''')
-    cursor.execute('''CREATE PROCEDURE sp_SortData
-                            @OrderByColumnName nvarchar(MAX),
-                            @ASC_DSC nvarchar(MAX)
-                      AS
-                          DECLARE @SQLStatement nvarchar(max)
-                          SET @SQLStatement = N'select * from Movies order by '+@OrderByColumnName+ ' ' + @ASC_DSC
-                          EXEC sp_executesql @statement = @SQLStatement ''')
+    cursor.execute('''CREATE PROCEDURE sp_SortDataV3
+                       @searchType nvarchar(MAX),
+                       @OrderByColumnName nvarchar(MAX),
+                       @keyword nvarchar(MAX),
+                       @ASC_DSC nvarchar(MAX)
+                        AS
+                        DECLARE @SQLStatement_final nvarchar(max), @SQLStatement_base nvarchar(max), @SQLStatement_filter nvarchar(max)
+                        ,@SQLStatement_keyword nvarchar(max), @SQLStatement_ASC_DSC nvarchar(max) , @server_keyword nvarchar(max)
+                        
+                        SET @server_keyword = '''' +  @keyword + ''''; 
+                        SET @SQLStatement_base = N'SELECT * from Movies'
+                        SET @SQLStatement_keyword = N' WHERE movie + genre + actors + director like ' +@server_keyword 
+                        SET @SQLStatement_filter = N' ORDER BY '+@OrderByColumnName+ ' ' + @ASC_DSC
+                        SET @SQLStatement_ASC_DSC = N' ORDER BY movie ' + @ASC_DSC
+                        
+                        If (@searchType = 'none')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_ASC_DSC)
+                        
+                        If (@searchType = 'filter')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_filter)
+                        
+                        If (@searchType = 'keyword')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_ASC_DSC)
+                        
+                        If (@searchType = 'filter_and_keyword')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_filter)
+                        
+                        EXEC sp_executesql @statement = @SQLStatement_final ''')
     cnxn.commit()
     #print("Created a Local Cache\n")
 
@@ -76,8 +97,14 @@ def Connect_to_Local_Cache():
     cursor = cnxn.cursor()
     #print("Connected to Local Cache\n")
     
-    movies = cursor.execute('''SELECT * FROM Movies''')
-    return movies
+    
+    
+def get_all_movies(ASC_DSC): # gets all movies in SQL directory    
+            
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'none', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , None ,None, ASC_DSC)
+    
+    return movies.fetchall()
     #returns all movies in database upon connecting to DB
 
 def Delete_Local_Cache():
@@ -89,7 +116,7 @@ def Delete_Local_Cache():
     #print("Deleted Local Cache")
     
 # 'D:/SSD/Movies/Two'
-def export_to_SQLMoviesTable(directory):
+def import_to_SQLMoviesTable(directory):
 
     movies,movies_not_found = ms.get_movies_in_dir(directory)
     for movie in movies:
@@ -167,22 +194,78 @@ def apply_filters(score_option,year_option):
         #Returns movie names
         print(row[moviename])
         # can be modified to return any row
+        
+        
+def keyword_and_filter_search_ui(keyword, score_option, year_option, runtime, ASC_DSC):
+    
+    keyword = str("%"+ keyword+"%" )
+    
+    if score_option == True:
+        filter_option = 'cumul_score'
+            
+    elif year_option == True:
+        filter_option= "release_year"
+        
+    elif runtime == True:
+        filter_option= "runtime"
+        
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'filter_and_keyword', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , keyword ,filter_option, ASC_DSC)
+
+    return movies.fetchall()
+    
+
+def keyword_search_ui( keyword , ASC_DSCDSC):
+    
+    keyword = str("%"+ keyword+"%" )
+    # the % xxx % format is syntax to allow the keyword searches to be performed
+        
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'keyword', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , keyword ,None, ASC_DSC)
+        
+    return movies.fetchall()
+
+def year_range_search_ui(start , end):
+    movies=cursor.execute('''SELECT * FROM Movies WHERE
+                            release_year between (?) AND (?)
+                            '''
+                            ,start, end)
+    return movies                        
+        
+def apply_filters_ui(score_option, year_option, runtime, ASC_DSC): 
+    #modified for ui use isntead of a CLI
+    
+    if score_option == True:
+        filter_option = 'cumul_score'
+            
+    elif year_option == True:
+        filter_option= "release_year"
+        
+    elif runtime == True:
+        filter_option= "runtime"
+        
+        
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'filter', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , None ,filter_option, ASC_DSC)
+    
+    return movies.fetchall()
+      
 
 ## First time user would run these three functions sequentially
 ## Description : Creates local Database and uploads movies in directory to them with API information , uncomment all three, run, then comment out again
 #Create_Local_Cache()  
 #Connect_to_Local_Cache()
-#export_to_SQLMoviesTable('D:/SSD/Movies/Two') 
+#import_to_SQLMoviesTable('D:/SSD/Movies/Two') 
         
 ##Returning User doesn't need to create Database Again, would run these two functions if they have new movies to upload to the sorter        
 ##Description: Connects to Local SQL Database and uploads movies in directory to them with API information 
 #Connect_to_Local_Cache()
-#export_to_SQLMoviesTable('D:/SSD/Movies/Two')
+#import_to_SQLMoviesTable('D:/SSD/Movies/Two')
 
 ## Alternative testing connection which doesnt need to be created anew since it'll alway be there for anyone developer to use
 ## Description : Connects to Cloud SQL Database and uploads movies in directory to them with API information 
 #Connect_to_Cloud()
-#export_to_SQLMoviesTable('D:\Movies\Test')
+#import_to_SQLMoviesTable('D:\Movies\Test')
 
 ## A Returning User with no new movies to upload would run one of these functions to connect amd then run a filter function (lines 187 - 189)
 ## Description : Choose to either connect to cloud OR Local Cache but not both
