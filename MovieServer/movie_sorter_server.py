@@ -52,13 +52,34 @@ def Create_Local_Cache():
                       primary key (movie,release_year)
                       )
                       ''')
-    cursor.execute('''CREATE PROCEDURE sp_SortData
-                            @OrderByColumnName nvarchar(MAX),
-                            @ASC_DSC nvarchar(MAX)
-                      AS
-                          DECLARE @SQLStatement nvarchar(max)
-                          SET @SQLStatement = N'select * from Movies order by '+@OrderByColumnName+ ' ' + @ASC_DSC
-                          EXEC sp_executesql @statement = @SQLStatement ''')
+    cursor.execute('''CREATE PROCEDURE sp_SortDataV3
+                       @searchType nvarchar(MAX),
+                       @OrderByColumnName nvarchar(MAX),
+                       @keyword nvarchar(MAX),
+                       @ASC_DSC nvarchar(MAX)
+                        AS
+                        DECLARE @SQLStatement_final nvarchar(max), @SQLStatement_base nvarchar(max), @SQLStatement_filter nvarchar(max)
+                        ,@SQLStatement_keyword nvarchar(max), @SQLStatement_ASC_DSC nvarchar(max) , @server_keyword nvarchar(max)
+                        
+                        SET @server_keyword = '''' +  @keyword + ''''; 
+                        SET @SQLStatement_base = N'SELECT * from Movies'
+                        SET @SQLStatement_keyword = N' WHERE movie + genre + actors + director like ' +@server_keyword 
+                        SET @SQLStatement_filter = N' ORDER BY '+@OrderByColumnName+ ' ' + @ASC_DSC
+                        SET @SQLStatement_ASC_DSC = N' ORDER BY movie ' + @ASC_DSC
+                        
+                        If (@searchType = 'none')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_ASC_DSC)
+                        
+                        If (@searchType = 'filter')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_filter)
+                        
+                        If (@searchType = 'keyword')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_ASC_DSC)
+                        
+                        If (@searchType = 'filter_and_keyword')
+                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_filter)
+                        
+                        EXEC sp_executesql @statement = @SQLStatement_final ''')
     cnxn.commit()
     #print("Created a Local Cache\n")
 
@@ -78,19 +99,12 @@ def Connect_to_Local_Cache():
     
     
     
-def get_all_movies(ASC,DSC): # gets all movies in SQL directory    
+def get_all_movies(ASC_DSC): # gets all movies in SQL directory    
+            
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'none', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , None ,None, ASC_DSC)
     
-    movies = cursor.execute('''SELECT * FROM Movies''')
-    
-    if ASC == True:
-        movies = cursor.execute('''SELECT * FROM Movies
-                                ORDER BY movie ASC ''')
-        
-    if DSC == True:
-        movies = cursor.execute('''SELECT * FROM Movies
-                                ORDER BY movie DESC ''')
-    
-    return movies
+    return movies.fetchall()
     #returns all movies in database upon connecting to DB
 
 def Delete_Local_Cache():
@@ -182,7 +196,7 @@ def apply_filters(score_option,year_option):
         # can be modified to return any row
         
         
-def keyword_and_filter_search_ui(keyword, score_option, year_option, runtime, ASC, DSC):
+def keyword_and_filter_search_ui(keyword, score_option, year_option, runtime, ASC_DSC):
     
     keyword = str("%"+ keyword+"%" )
     
@@ -195,51 +209,21 @@ def keyword_and_filter_search_ui(keyword, score_option, year_option, runtime, AS
     elif runtime == True:
         filter_option= "runtime"
         
-    ASC_DSC = 'ASC' # default sorting is ascending       
-    
-    if ASC == True:
-        ASC_DSC = 'ASC'
-        
-    if DSC == True:
-        ASC_DSC = 'DESC'
-        
-        
-    movies = cursor.execute('''exec sp_sortdataV2 @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'filter_and_keyword', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
                             , keyword ,filter_option, ASC_DSC)
 
     return movies.fetchall()
     
 
-def keyword_search_ui( keyword , ASC , DSC):
+def keyword_search_ui( keyword , ASC_DSCDSC):
     
     keyword = str("%"+ keyword+"%" )
     # the % xxx % format is syntax to allow the keyword searches to be performed
-
-    # TODO : Make ASC/DSC programmable field to reduce repetitive code
         
-    movies=cursor.execute('''SELECT * FROM Movies WHERE
-                            movie like (?) OR genre like (?)
-                            OR actors like (?) OR director like (?)
-                            '''
-                            ,keyword, keyword, keyword, keyword)
-    
-    if ASC == True:
-        movies=cursor.execute('''SELECT * FROM Movies WHERE
-                            movie like (?) OR genre like (?)
-                            OR actors like (?) OR director like (?)
-                            ORDER BY movie ASC
-                            '''
-                            ,keyword, keyword, keyword, keyword)
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'keyword', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , keyword ,None, ASC_DSC)
         
-    if DSC == True:
-        movies=cursor.execute('''SELECT * FROM Movies WHERE
-                            movie like (?) OR genre like (?)
-                            OR actors like (?) OR director like (?)
-                            ORDER BY movie DESC
-                            '''
-                            ,keyword, keyword, keyword, keyword)
-    
-    return movies
+    return movies.fetchall()
 
 def year_range_search_ui(start , end):
     movies=cursor.execute('''SELECT * FROM Movies WHERE
@@ -248,7 +232,7 @@ def year_range_search_ui(start , end):
                             ,start, end)
     return movies                        
         
-def apply_filters_ui(score_option, year_option, runtime, ASC, DSC): 
+def apply_filters_ui(score_option, year_option, runtime, ASC_DSC): 
     #modified for ui use isntead of a CLI
     
     if score_option == True:
@@ -260,18 +244,9 @@ def apply_filters_ui(score_option, year_option, runtime, ASC, DSC):
     elif runtime == True:
         filter_option= "runtime"
         
-    ASC_DSC = 'ASC' # default sorting is ascending       
-    
-    if ASC == True:
-        ASC_DSC = 'ASC'
         
-    if DSC == True:
-        ASC_DSC = 'DESC'
-        
-        
-    movies = cursor.execute('''exec sp_SortData @OrderByColumnName =  ?, @ASC_DSC = ?  ''',filter_option, ASC_DSC)
-    #the stored procedure invoked here can be viewed under the JMprojects database , under programmability, and stored procedures 
-    #this format can be used to modularize fields which are columnnames
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'filter', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , None ,filter_option, ASC_DSC)
     
     return movies.fetchall()
       
