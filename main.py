@@ -76,7 +76,8 @@ class MovieApp(QWidget):
     def __init__(self):
         super(MovieApp, self).__init__()
         self.ui = self.load_ui()
-        self.connect_to_local_cache() # this might be a better way to start the program
+        self.create_local_cache() # create a local cache for a first time user
+        self.connect_to_local_cache()
         self.ui.dirPath.setReadOnly(True)
         self.ui.status.setReadOnly(True)
         self.ui.stackedWidget.setCurrentIndex(0)
@@ -212,7 +213,7 @@ class MovieApp(QWidget):
             server.Connect_to_Local_Cache()
             self.ui.status.setText("Successfully connected to local cache")
         except:
-            self.ui.status.setText("Create a cache")
+            self.ui.status.setText("Error: no local cache")
 
     def browse_directories(self):
 
