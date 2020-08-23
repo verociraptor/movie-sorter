@@ -101,8 +101,8 @@ class MovieApp(QMainWindow):
         self.ui = self.load_ui()
 #        self.ui.dirPath.setReadOnly(True)
 #        self.ui.status.setReadOnly(True)
-        self.create_local_cache() # create a local cache for a first time user
-        self.connect_to_local_cache()
+#        self.create_local_cache() # create a local cache for a first time user
+#        self.connect_to_local_cache()
         self.ui.stackedWidget.setCurrentIndex(0)
         self.connect_buttons()
 #        self.init_movies_view()
