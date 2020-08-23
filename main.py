@@ -1,7 +1,7 @@
 import sys
 import os
 from MovieServer import movie_sorter_server as server
-from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QLabel, QHBoxLayout, QListWidgetItem, QTableWidgetItem, QAbstractItemView
+from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QLabel, QHBoxLayout, QListWidgetItem, QTableWidgetItem, QAbstractItemView, QMainWindow
 from PySide2.QtCore import QFile
 from PySide2.QtUiTools import QUiLoader
 
@@ -90,7 +90,7 @@ class MovieItem(QWidget):
         ui.scoresTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         ui.scoresTable.setSelectionMode(QAbstractItemView.NoSelection)
 
-class MovieApp(QWidget):
+class MovieApp(QMainWindow):
     """
     App widget to start the whole app.
     Sets the buttons and movie views, and
@@ -99,21 +99,21 @@ class MovieApp(QWidget):
     def __init__(self):
         super(MovieApp, self).__init__()
         self.ui = self.load_ui()
-        self.connect_to_local_cache() # this might be a better way to start the program
-        self.ui.dirPath.setReadOnly(True)
-        self.ui.status.setReadOnly(True)
+#        self.connect_to_local_cache() # this might be a better way to start the program
+#        self.ui.dirPath.setReadOnly(True)
+#        self.ui.status.setReadOnly(True)
         self.ui.stackedWidget.setCurrentIndex(0)
         self.connect_buttons()
-        self.init_movies_view()
+#        self.init_movies_view()
 
     def connect_buttons(self):
         self.ui.toSearchPage.clicked.connect(lambda:  self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.goBack.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.mainMenuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(0))
-        self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
-        self.ui.createCache.clicked.connect(self.create_local_cache)
-        self.ui.browseDirectories.clicked.connect(self.browse_directories)
-        self.ui.importMovies.clicked.connect(self.import_movies)
+#        self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
+#        self.ui.createCache.clicked.connect(self.create_local_cache)
+#        self.ui.browseDirectories.clicked.connect(self.browse_directories)
+#        self.ui.importMovies.clicked.connect(self.import_movies)
         self.ui.search.clicked.connect(self.update_movies_view)
         self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 

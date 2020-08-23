@@ -24,12 +24,17 @@ class Movie:
         
    
     def set_properties(self, tmdb_info, omdb_info):
-        for dict_item in omdb_info['Ratings']:
-            if dict_item['Source'] == 'Rotten Tomatoes':
-                #Takes off percentage symbol from the rotten tomatoes' value
-                self.rotten_tom_score = int(dict_item['Value'].split('%')[0])
-                break
-        
+        #no rotten tomato score available for this movie in omdb api
+        if len(omdb_info['Ratings']) == 0: 
+             self.rotten_tom_score = 0
+        else:
+            for dict_item in omdb_info['Ratings']:
+                if dict_item['Source'] == 'Rotten Tomatoes':
+                    #Takes off percentage symbol from the rotten tomatoes' value
+                    self.rotten_tom_score = int(dict_item['Value'].split('%')[0])
+                    break
+
+        self.year = int(tmdb_info['release_date']) if self.year == 0 else self.year
         self.metascore = int(omdb_info['Metascore']) if is_valid(omdb_info['Metascore']) else 0
         self.imdb_score = float(omdb_info['imdbRating']) if is_valid(omdb_info['imdbRating']) else 0
         self.genre = omdb_info['Genre'] if is_valid(omdb_info['Genre']) else "Genre not found"
