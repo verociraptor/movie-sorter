@@ -1,4 +1,5 @@
 import MovieServer.movie_sorter as ms
+#import movie_sorter as ms
 import pyodbc
 
 moviename=1
@@ -33,7 +34,7 @@ def Create_Local_Cache():
     cursor.execute('''CREATE DATABASE Movies''')
     cnxn.commit()
     cursor.execute('''
-                       USE Movies
+                        USE Movies
                       CREATE TABLE Movies
                       (
                       id int identity(1,1)
@@ -52,34 +53,53 @@ def Create_Local_Cache():
                       primary key (movie,release_year)
                       )
                       ''')
-    cursor.execute('''CREATE PROCEDURE sp_SortDataV3
-                       @searchType nvarchar(MAX),
-                       @OrderByColumnName nvarchar(MAX),
-                       @keyword nvarchar(MAX),
-                       @ASC_DSC nvarchar(MAX)
+    
+    cursor.execute('''
+                        USE Movies
+                      CREATE TABLE storedProcedures2
+                      (
+                        id int identity(1,1), 
+                        procedureName nvarchar(MAX)
+                      ,procedureText nvarchar(MAX)
+                      )
+                      ''')
+    cnxn.commit()      
+    
+    
+    
+    sp_SortDataV3 = str( """   CREATE PROCEDURE sp_SortDataV3
+                                @searchType nvarchar(MAX),
+                                @OrderByColumnName nvarchar(MAX),
+                                @keyword nvarchar(MAX),
+                                @ASC_DSC nvarchar(MAX)
                         AS
-                        DECLARE @SQLStatement_final nvarchar(max), @SQLStatement_base nvarchar(max), @SQLStatement_filter nvarchar(max)
-                        ,@SQLStatement_keyword nvarchar(max), @SQLStatement_ASC_DSC nvarchar(max) , @server_keyword nvarchar(max)
+                                DECLARE @SQLStatement_final nvarchar(max), @SQLStatement_base nvarchar(max), @SQLStatement_filter nvarchar(max)
+                                ,@SQLStatement_keyword nvarchar(max), @SQLStatement_ASC_DSC nvarchar(max) 
+                                
+                                SET @SQLStatement_base = N'SELECT * from Movies'
+                                SET @SQLStatement_keyword = N' WHERE movie + genre + actors + director like ' +''''+@keyword+''''
+                                SET @SQLStatement_filter = N' ORDER BY '+@OrderByColumnName+ ' ' + @ASC_DSC
+                                SET @SQLStatement_ASC_DSC = N' ORDER BY movie ' + @ASC_DSC
+                                
+                                If (@searchType = 'none')
+                                 	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_ASC_DSC)
+                                
+                                If (@searchType = 'filter')
+                                 	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_filter)
+                                
+                                If (@searchType = 'keyword')
+                                 	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_ASC_DSC)
+                                
+                                If (@searchType = 'filter_and_keyword')
+                                 	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_filter)
+                                
+                                EXEC sp_executesql @statement = @SQLStatement_final """) 
+                    
+    cursor.execute(''' 
+                        execute(?)
                         
-                        SET @server_keyword = '''' +  @keyword + ''''; 
-                        SET @SQLStatement_base = N'SELECT * from Movies'
-                        SET @SQLStatement_keyword = N' WHERE movie + genre + actors + director like ' +@server_keyword 
-                        SET @SQLStatement_filter = N' ORDER BY '+@OrderByColumnName+ ' ' + @ASC_DSC
-                        SET @SQLStatement_ASC_DSC = N' ORDER BY movie ' + @ASC_DSC
-                        
-                        If (@searchType = 'none')
-                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_ASC_DSC)
-                        
-                        If (@searchType = 'filter')
-                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_filter)
-                        
-                        If (@searchType = 'keyword')
-                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_ASC_DSC)
-                        
-                        If (@searchType = 'filter_and_keyword')
-                        	SET @SQLStatement_final = CONCAT(@SQLStatement_base, @SQLStatement_keyword, @SQLStatement_filter)
-                        
-                        EXEC sp_executesql @statement = @SQLStatement_final ''')
+                    ''' , sp_SortDataV3)
+
     cnxn.commit()
     #print("Created a Local Cache\n")
 
@@ -215,7 +235,7 @@ def keyword_and_filter_search_ui(keyword, score_option, year_option, runtime, AS
     return movies.fetchall()
     
 
-def keyword_search_ui( keyword , ASC_DSCDSC):
+def keyword_search_ui( keyword , ASC_DSC):
     
     keyword = str("%"+ keyword+"%" )
     # the % xxx % format is syntax to allow the keyword searches to be performed
