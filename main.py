@@ -80,7 +80,7 @@ class MovieItem(QWidget):
         self.avgScore = avgScore
 
         #display this info only in the search page
-        shortTitle = self.title[0:16] #movie title with reduced characters
+        shortTitle = self.title[0:50] #movie title with reduced characters
         movie_title = QLabel(shortTitle)
         movie_year = QLabel(self.year)
         movie_runtime = QLabel(self.runtime)
@@ -157,6 +157,7 @@ class MovieApp(QMainWindow):
         self.ui.toSearchPage.clicked.connect(lambda:  self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.goBack.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.mainMenuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(0))
+
 #       self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
 #       self.ui.createCache.clicked.connect(self.create_local_cache)
 #       self.ui.browseDirectories.clicked.connect(self.browse_directories)
@@ -301,14 +302,18 @@ class MovieApp(QMainWindow):
 
 
     def import_movies(self):
+
+        #dirName = self.ui.dirPath.text()
         dirName = QFileDialog.getExistingDirectory()
-        print(dirName)
-        server.Connect_to_Local_Cache()
-        if len(dirName) == 0:
-            print("No directory selected!")
-        else :
-            server.import_to_SQLMoviesTable(dirName)
-            print("Movies successfully imported")
+        try:
+            server.Connect_to_Local_Cache()
+            if len(dirName) == 0:
+                print("No directory selected!")
+            else:
+               server.import_to_SQLMoviesTable(dirName)
+               print("Movies successfully imported")
+        except:
+            print("Could not connect to Directory")
 
     def movie_clicked(self, item):
         """

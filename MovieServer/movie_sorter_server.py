@@ -1,5 +1,5 @@
-import MovieServer.movie_sorter as ms
-#import movie_sorter as ms
+#import MovieServer.movie_sorter as ms
+import movie_sorter as ms
 import pyodbc
 
 moviename=1
@@ -50,20 +50,11 @@ def Create_Local_Cache():
                       ,awards nvarchar(max)
                       ,actors nvarchar(max)
                       ,cumul_score float
+                      ,file_loc nvarchar(max)
+                      ,orig_lang nvarchar(max)
                       primary key (movie,release_year)
                       )
                       ''')
-    
-    cursor.execute('''
-                        USE Movies
-                      CREATE TABLE storedProcedures2
-                      (
-                        id int identity(1,1), 
-                        procedureName nvarchar(MAX)
-                      ,procedureText nvarchar(MAX)
-                      )
-                      ''')
-    cnxn.commit()      
     
     
     
@@ -116,45 +107,102 @@ def Connect_to_Local_Cache():
     global cursor 
     cursor = cnxn.cursor()
     #print("Connected to Local Cache\n")
-    
-    
-    
-def get_all_movies(ASC_DSC): # gets all movies in SQL directory    
-            
-    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'none', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
-                            , None ,None, ASC_DSC)
-    
-    return movies.fetchall()
-    #returns all movies in database upon connecting to DB
 
 def Delete_Local_Cache():
     cnxn.autocommit = True
-    cursor.execute('''ALTER DATABASE Movies SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                       GO
-                       Drop Database Movies;''')  
+    cursor.execute('''
+                   USE master
+                   ALTER DATABASE Movies 
+                   SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+                       
+                       ''')
+    cursor.execute('''
+                    USE master
+                    DROP DATABASE Movies
+                        ''')
     cnxn.commit()
     #print("Deleted Local Cache")
+
+def delete_Movie_Entry(moviename, release_year):
+    cursor.execute('''
+                    DELETE FROM Movies 
+                    WHERE movie = (?) and release_year = (?);
+                    ''' , moviename, release_year )
+    cnxn.commit()
+
+# def sync(directory):
+#     # directories = cursor.execute('''SELECT DISTINCT file_loc from Movies''' )
+    
+#     # directory = 0
+
+#     import_to_SQLMoviesTable(directory)
+    
+#     # catches up the database if it is missing entries that are found in the Folder
+#     # for row in directories.fetchall():
+#         # import_to_SQLMoviesTable(row[directory])
+    
+        
+    
     
 # 'D:/SSD/Movies/Two'
 def import_to_SQLMoviesTable(directory):
 
+    #gets all existing movies and their release year currently in the database
+    moviename, release_year = 0 , 1 # indexing
+    movie_names_and_years = []
+    
     movies,movies_not_found = ms.get_movies_in_dir(directory)
     for movie in movies:
+        
+        movie_names_and_years.append([movie.name,movie.release_year])
+        
         try:
             cursor.execute('''
                         INSERT INTO Movies 
                         (movie, rotten_tomato_score, imdb_score, metascore, runtime,
-                        release_year, genre, plot, director, actors, awards, cumul_score)
+                        release_year, genre, plot, director, actors, awards, cumul_score,
+                        file_loc, orig_lang)
                         VALUES
-                        (?,?,?,?,?,?,?,?,?,?,?,?)
+                        (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         ''', (movie.name),(movie.rotten_tom_score),(movie.imdb_score),(movie.metascore),(movie.runtime),
                         (movie.release_year), (movie.genre),(movie.plot),(movie.director),(movie.actors),(movie.awards),
-                        (round((movie.rotten_tom_score + movie.metascore + 10*movie.imdb_score)/3,0)))
+                        (averageMovieScore(movie.rotten_tom_score, movie.metascore ,movie.imdb_score)), (movie.file_loc),
+                        (movie.orig_lang))
             cnxn.commit()
+            
         except pyodbc.IntegrityError: 
             # The Integrity Error arises when duplicates are attempted to be inserted , there is a primary key serverside which does not allow this
             # but raises an error which has to be waived to continue running the insert procedure
             pass
+        
+     # catches up the database if it has additional entries not found in the Folder anymore     
+    extraMovies = cursor.execute('''select movie, release_year, file_loc from Movies
+                                         where file_loc = (?)''', directory )                   
+    for row in extraMovies.fetchall():
+        if [row[moviename],row[release_year]] not in movie_names_and_years:
+           delete_Movie_Entry( row[moviename] , row[release_year] )
+    
+
+def averageMovieScore(rt , meta, imdb):
+    '''
+    Averages all non-zero reviews of a movie
+    '''
+    reviewCount = 0
+    if rt != 0:
+        reviewCount += 1
+    if meta != 0:
+        reviewCount += 1
+    if imdb != 0:
+        reviewCount += 1  
+    
+    if reviewCount == 0:
+        # avoid division by 0
+        return 0    
+        
+    score = round((rt + meta + 10*imdb)/reviewCount,0)
+    # round ( value, position to round to)
+    
+    return score
 
 def adv_search( movie ,release_year_range, genre):
     if movie != None:
@@ -215,6 +263,14 @@ def apply_filters(score_option,year_option):
         print(row[moviename])
         # can be modified to return any row
         
+def get_all_movies(ASC_DSC): # gets all movies in SQL directory    
+            
+    movies = cursor.execute('''exec sp_SortDataV3 @searchType = 'none', @keyword = ? , @OrderByColumnName =  ?, @ASC_DSC = ?  ''' 
+                            , None ,None, ASC_DSC)
+    
+    return movies.fetchall()
+    #returns all movies in database upon connecting to DB
+        
         
 def keyword_and_filter_search_ui(keyword, score_option, year_option, runtime, ASC_DSC):
     
@@ -274,13 +330,13 @@ def apply_filters_ui(score_option, year_option, runtime, ASC_DSC):
 ## First time user would run these three functions sequentially
 ## Description : Creates local Database and uploads movies in directory to them with API information , uncomment all three, run, then comment out again
 #Create_Local_Cache()  
-#Connect_to_Local_Cache()
-#import_to_SQLMoviesTable('D:/SSD/Movies/Two') 
+# Connect_to_Local_Cache()
+# import_to_SQLMoviesTable('D:\Movies\Test') 
         
 ##Returning User doesn't need to create Database Again, would run these two functions if they have new movies to upload to the sorter        
 ##Description: Connects to Local SQL Database and uploads movies in directory to them with API information 
 #Connect_to_Local_Cache()
-#import_to_SQLMoviesTable('D:/SSD/Movies/Two')
+#import_to_SQLMoviesTable('D:\Movies\Test')
 
 ## Alternative testing connection which doesnt need to be created anew since it'll alway be there for anyone developer to use
 ## Description : Connects to Cloud SQL Database and uploads movies in directory to them with API information 
@@ -299,6 +355,14 @@ def apply_filters_ui(score_option, year_option, runtime, ASC_DSC):
 
 ## Description: Deletes your local Movie Cache
 # Connect_to_Local_Cache()
-# Delete_Local_Cache() ## Still Buggy, best to manually delete
-        
+# Delete_Local_Cache() 
 
+
+## Description: Deletes a movie entry    
+# moviename = 'Yesterday'
+# release_year = 2019
+# Connect_to_Local_Cache()
+# delete_Movie_Entry(moviename, release_year)
+        
+# Connect_to_Local_Cache()
+# sync() 
