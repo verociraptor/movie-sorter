@@ -1,8 +1,8 @@
 import os
 import requests
 import re 
-import MovieServer.constant as c
-#import constant as c
+#import MovieServer.constant as c
+import constant as c
 class Movie:
     def __init__(self, name, year, path):
         self.name = name
@@ -34,7 +34,7 @@ class Movie:
                     self.rotten_tom_score = int(dict_item['Value'].split('%')[0])
                     break
 
-        self.year = int(tmdb_info['release_date']) if self.year == 0 else self.year
+        self.release_year = int(tmdb_info['release_date']) if self.release_year == 0 else self.release_year
         self.metascore = int(omdb_info['Metascore']) if is_valid(omdb_info['Metascore']) else 0
         self.imdb_score = float(omdb_info['imdbRating']) if is_valid(omdb_info['imdbRating']) else 0
         self.genre = omdb_info['Genre'] if is_valid(omdb_info['Genre']) else "Genre not found"
@@ -154,40 +154,41 @@ return movies and the movies not found in a given directory
 def get_movies_in_dir(path):
     movies_found = []
     movies_not_found = []
-       
-    for entry in os.scandir(path):
-        #is a movie file but has no respective directory
-        #creates dir and movies file inside it
-        if entry.name.lower().endswith('.mkv'):
-            change_file_into_dir(path)
-            
-        if os.path.isdir(entry):#a movie
-            #get current movie 
-            movie_year = get_name_and_year(entry.name)
-                    
-            curr_movie = Movie(movie_year[0], int(movie_year[1]), path)
-            #get TMDB id from TMDB
-            tmdb_id = get_tmdb_id(movie_year[0], movie_year[1])
-                    
-            if(tmdb_id != c.ERROR):#movie search was successful
-                #get movie info and imdb id from TMDB
-                tmdb_json = get_movie_tmdb(tmdb_id)
+    
+    try:
+        for entry in os.scandir(path):
+            #is a movie file but has no respective directory
+            #creates dir and movies file inside it
+            if entry.name.lower().endswith('.mkv'):
+                change_file_into_dir(path)
+                
+            if os.path.isdir(entry):#a movie
+                #get current movie 
+                movie_year = get_name_and_year(entry.name)
                         
-                #get movie info from OMDB not seen in TMDB
-                omdb_json = get_movie_omdb(tmdb_json["imdb_id"])
+                curr_movie = Movie(movie_year[0], int(movie_year[1]), path)
+                #get TMDB id from TMDB
+                tmdb_id = get_tmdb_id(movie_year[0], movie_year[1])
                         
-                #movie info retrieval was successful
-                if(tmdb_json != c.ERROR and omdb_json != c.ERROR):
-                    curr_movie.set_properties(tmdb_json, omdb_json)
-                    movies_found.append(curr_movie)
+                if(tmdb_id != c.ERROR):#movie search was successful
+                    #get movie info and imdb id from TMDB
+                    tmdb_json = get_movie_tmdb(tmdb_id)
+                            
+                    #get movie info from OMDB not seen in TMDB
+                    omdb_json = get_movie_omdb(tmdb_json["imdb_id"])
+                            
+                    #movie info retrieval was successful
+                    if(tmdb_json != c.ERROR and omdb_json != c.ERROR):
+                        curr_movie.set_properties(tmdb_json, omdb_json)
+                        movies_found.append(curr_movie)
+                    else:
+                        movies_not_found.append(entry.name + " needs its name rechecked in "
+                                                   + path)
                 else:
                     movies_not_found.append(entry.name + " needs its name rechecked in "
-                                               + path)
-            else:
-                movies_not_found.append(entry.name + " needs its name rechecked in "
-                                        + path)
-                        
-        
-                
+                                            + path)
+    except: # directory not valid
+        pass 
+                          
             
     return movies_found, movies_not_found

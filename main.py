@@ -34,7 +34,7 @@ class MovieItem(QWidget):
         self.avgScore = avgScore
 
         #display this info only in the search page
-        shortTitle = self.title[0:16] #movie title with reduced characters
+        shortTitle = self.title[0:50] #movie title with reduced characters
         movie_title = QLabel(shortTitle)
         movie_year = QLabel(self.year)
         movie_runtime = QLabel(self.runtime)
@@ -113,8 +113,8 @@ class MovieApp(QMainWindow):
         self.ui.mainMenuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(0))
 #        self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
 #        self.ui.createCache.clicked.connect(self.create_local_cache)
-#        self.ui.browseDirectories.clicked.connect(self.browse_directories)
-#        self.ui.importMovies.clicked.connect(self.import_movies)
+        self.ui.browseDirectories.clicked.connect(self.browse_directories)
+        self.ui.importMovies.clicked.connect(self.import_movies)
         self.ui.search.clicked.connect(self.update_movies_view)
         self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 
@@ -226,17 +226,19 @@ class MovieApp(QMainWindow):
     def create_local_cache(self):
         try:
             server.Create_Local_Cache()
-            self.ui.status.setText("Sucessfully created local cache")
+            #self.ui.status.setText("Sucessfully created local cache")
         except:
-            self.ui.status.setText("Error: cache already exists!")
+            pass
+            #self.ui.status.setText("Error: cache already exists!")
 
 
     def connect_to_local_cache(self):
         try:
             server.Connect_to_Local_Cache()
-            self.ui.status.setText("Successfully connected to local cache")
+            #self.ui.status.setText("Successfully connected to local cache")
         except:
-            self.ui.status.setText("Error: no local cache")
+            pass
+            #self.ui.status.setText("Error: no local cache")
 
     def browse_directories(self):
 
@@ -249,8 +251,9 @@ class MovieApp(QMainWindow):
         try:
             server.Connect_to_Local_Cache()
             if len(dirName) == 0:
-               self.ui.status.setText("No directory selected!")
-            else :
+                pass
+               #self.ui.status.setText("No directory selected!")
+            else:
                server.import_to_SQLMoviesTable(dirName)
                self.ui.status.setText("Movies successfully imported")
         except:
