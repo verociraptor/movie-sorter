@@ -456,30 +456,58 @@
      </widget>
      <widget class="QWidget" name="page_3">
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QPushButton" name="goBack">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="1" column="0">
+        <widget class="QLabel" name="title">
+         <property name="minimumSize">
+          <size>
+           <width>766</width>
+           <height>60</height>
+          </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>150</width>
-           <height>30</height>
+           <width>0</width>
+           <height>60</height>
           </size>
          </property>
          <property name="text">
-          <string>Go back</string>
+          <string>Title</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="title">
-         <property name="text">
-          <string>Title</string>
+       <item row="4" column="0">
+        <widget class="QTableWidget" name="scoresTable">
+         <property name="maximumSize">
+          <size>
+           <width>766</width>
+           <height>70</height>
+          </size>
          </property>
+         <row>
+          <property name="text">
+           <string>Scores</string>
+          </property>
+         </row>
+         <column>
+          <property name="text">
+           <string>IMDB </string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Rotten Tomatoes</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Metascore</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Average Score</string>
+          </property>
+         </column>
         </widget>
        </item>
        <item row="2" column="0">
@@ -518,43 +546,27 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QTextEdit" name="textEdit"/>
-       </item>
-       <item row="4" column="0">
-        <widget class="QTableWidget" name="scoresTable">
+       <item row="0" column="0">
+        <widget class="QPushButton" name="goBack">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="maximumSize">
           <size>
-           <width>766</width>
-           <height>70</height>
+           <width>150</width>
+           <height>30</height>
           </size>
          </property>
-         <row>
-          <property name="text">
-           <string>Scores</string>
-          </property>
-         </row>
-         <column>
-          <property name="text">
-           <string>IMDB </string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Rotten Tomatoes</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Metascore</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Average Score</string>
-          </property>
-         </column>
+         <property name="text">
+          <string>Go back</string>
+         </property>
         </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QTextEdit" name="movieText"/>
        </item>
       </layout>
      </widget>

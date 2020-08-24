@@ -34,7 +34,7 @@ class Movie:
                     self.rotten_tom_score = int(dict_item['Value'].split('%')[0])
                     break
 
-        self.year = int(tmdb_info['release_date']) if self.year == 0 else self.year
+        self.release_year = int(tmdb_info['release_date'][0:4]) if self.release_year == 0 else self.release_year
         self.metascore = int(omdb_info['Metascore']) if is_valid(omdb_info['Metascore']) else 0
         self.imdb_score = float(omdb_info['imdbRating']) if is_valid(omdb_info['imdbRating']) else 0
         self.genre = omdb_info['Genre'] if is_valid(omdb_info['Genre']) else "Genre not found"

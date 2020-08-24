@@ -1,10 +1,56 @@
 import sys
 import os
 from MovieServer import movie_sorter_server as server
-from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QLabel, QHBoxLayout, QListWidgetItem, QTableWidgetItem, QAbstractItemView, QMainWindow
-from PySide2.QtCore import QFile
+from PySide2.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QLabel, QHBoxLayout, QListWidgetItem, QTableWidgetItem, QAbstractItemView, QMainWindow, QDialog, QDialogButtonBox, QVBoxLayout, QGroupBox, QFormLayout, QLineEdit
+from PySide2.QtCore import QFile, Qt
 from PySide2.QtUiTools import QUiLoader
 
+
+class CustomDialog(QDialog):
+
+    def __init__(self, *args, **kwargs):
+        super(CustomDialog, self).__init__(*args, **kwargs)
+        self.createFormGroupBox()
+        self.setWindowTitle("HELLO!")
+
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.label = QLabel("Provide the directory you wish to update (i.e account for any deletion or additions of movies made)")
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.formGroupBox)
+        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+        self.setWhatsThis("Help")
+
+    def createFormGroupBox(self):
+        self.formGroupBox = QGroupBox("Form layout")
+        form = QFormLayout()
+        self.dirName = ""
+        dirButton = QPushButton("Directory...")
+        syncDirButton = QPushButton("Sync...")
+
+        self.line = QLineEdit()
+        self.line.setReadOnly(True)
+
+        dirButton.clicked.connect(self.get_directory)
+        syncDirButton.clicked.connect(self.sync_dir)
+
+        form.addRow(QLabel("Directory Selection"), dirButton)
+        form.addRow(self.line, syncDirButton)
+        self.formGroupBox.setLayout(form)
+
+    def get_directory(self, layout):
+        self.dirName = QFileDialog.getExistingDirectory()
+        print("get this directory:", self.dirName)
+        self.line.setText(self.dirName)
+
+    def sync_dir(self):
+        print("sync this dir:", self.dirName)
 
 class MovieItem(QWidget):
     """
@@ -49,11 +95,11 @@ class MovieItem(QWidget):
 
     def display_widget(self, ui):
         ui.title.setText(self.title)
-        ui.runtime_2.setText(self.runtime)
+        ui.runtime2.setText(self.runtime)
         ui.title.setStyleSheet("font: 20pt Comic Sans MS")
         ui.year.setText(self.year)
         ui.fileLoc.setText("C:/deez/nutz")
-        ui.textEdit.setHtml("<section><strong>Plot:</strong><p>" + self.plot + "</p></section><br>" +
+        ui.movieText.setHtml("<section><strong>Plot:</strong><p>" + self.plot + "</p></section><br>" +
                             "<section><strong>Director:</strong><p>" + self.director+ "</p></section><br>" +
                             "<section><strong>Genre:</strong><p>" + self.genre + "</p></section>" +
                             "<section><strong>Actors:</strong><p>" + self.actors + "</p></section><br>" +
@@ -86,7 +132,7 @@ class MovieItem(QWidget):
         ui.scoresTable.setItem(0, 1, QTableWidgetItem(self.rottenTom))
         ui.scoresTable.setItem(0, 2, QTableWidgetItem(self.metascore))
         ui.scoresTable.setItem(0, 3, QTableWidgetItem(self.avgScore))
-        ui.textEdit.setReadOnly(True)
+        ui.movieText.setReadOnly(True)
         ui.scoresTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         ui.scoresTable.setSelectionMode(QAbstractItemView.NoSelection)
 
@@ -101,25 +147,34 @@ class MovieApp(QMainWindow):
         self.ui = self.load_ui()
 #        self.ui.dirPath.setReadOnly(True)
 #        self.ui.status.setReadOnly(True)
-#        self.create_local_cache() # create a local cache for a first time user
-#        self.connect_to_local_cache()
+        self.create_local_cache() # create a local cache for a first time user
+        self.connect_to_local_cache()
         self.ui.stackedWidget.setCurrentIndex(0)
         self.connect_buttons()
-#        self.init_movies_view()
+        self.init_movies_view()
 
     def connect_buttons(self):
         self.ui.toSearchPage.clicked.connect(lambda:  self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.goBack.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(1))
         self.ui.mainMenuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(0))
-#        self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
-#        self.ui.createCache.clicked.connect(self.create_local_cache)
-#        self.ui.browseDirectories.clicked.connect(self.browse_directories)
-#        self.ui.importMovies.clicked.connect(self.import_movies)
+#       self.ui.connectCache.clicked.connect(self.connect_to_local_cache)
+#       self.ui.createCache.clicked.connect(self.create_local_cache)
+#       self.ui.browseDirectories.clicked.connect(self.browse_directories)
+        self.ui.syncButton.clicked.connect(self.sync_movies)
+        self.ui.importMovies.clicked.connect(self.import_movies)
         self.ui.search.clicked.connect(self.update_movies_view)
         self.ui.listWidget.itemClicked.connect(self.movie_clicked)
 
-    def display_search_headers(self):
+    def sync_movies(self, s):
+        print("click", s)
+        dlg = CustomDialog(self)
+        if dlg.exec_():
+            print("Success!")
+        else:
+            print("Cancel!")
 
+
+    def display_search_headers(self):
         movie_title = QLabel("Title")
         movie_year = QLabel("Release Year")
         movie_runtime = QLabel("Runtime")
@@ -137,6 +192,7 @@ class MovieApp(QMainWindow):
         myQListItem.setSizeHint(movieBox.sizeHint())
         self.ui.listWidget.addItem(myQListItem)
         self.ui.listWidget.setItemWidget(myQListItem, movie)
+        myQListItem.setFlags(Qt.NoItemFlags)
 
 
     def init_movies_view(self):
@@ -226,36 +282,33 @@ class MovieApp(QMainWindow):
     def create_local_cache(self):
         try:
             server.Create_Local_Cache()
-            self.ui.status.setText("Sucessfully created local cache")
+            print("Sucessfully created local cache")
         except:
-            self.ui.status.setText("Error: cache already exists!")
+            print("Error: cache already exists!")
 
 
     def connect_to_local_cache(self):
         try:
             server.Connect_to_Local_Cache()
-            self.ui.status.setText("Successfully connected to local cache")
+            print("Successfully connected to local cache")
         except:
-            self.ui.status.setText("Error: no local cache")
+            print("Error: no local cache")
 
-    def browse_directories(self):
+#    def browse_directories(self):
 
-        dirName = QFileDialog.getExistingDirectory()
-        self.ui.dirPath.setText(dirName)
+#        dirName = QFileDialog.getExistingDirectory()
+#        self.ui.dirPath.setText(dirName)
 
 
     def import_movies(self):
-        dirName = self.ui.dirPath.text()
-        try:
-            server.Connect_to_Local_Cache()
-            if len(dirName) == 0:
-               self.ui.status.setText("No directory selected!")
-            else :
-               server.import_to_SQLMoviesTable(dirName)
-               self.ui.status.setText("Movies successfully imported")
-        except:
-            self.ui.status.setText("Could not connect to Directory")
-
+        dirName = QFileDialog.getExistingDirectory()
+        print(dirName)
+        server.Connect_to_Local_Cache()
+        if len(dirName) == 0:
+            print("No directory selected!")
+        else :
+            server.import_to_SQLMoviesTable(dirName)
+            print("Movies successfully imported")
 
     def movie_clicked(self, item):
         """
@@ -263,12 +316,11 @@ class MovieApp(QMainWindow):
         movie that was clicked on.
         Sets all info on the pre-made page to the given movie's info.
         """
-        try :
-            movie = self.ui.listWidget.itemWidget(item)
-            movie.display_widget(self.ui)
-            self.ui.stackedWidget.setCurrentIndex(2)
-        except :
-            pass
+        movie = self.ui.listWidget.itemWidget(item)
+        if not isinstance(movie, MovieItem):
+            return
+        movie.display_widget(self.ui)
+        self.ui.stackedWidget.setCurrentIndex(2)
 
 if __name__ == "__main__":
     app = QApplication([])
