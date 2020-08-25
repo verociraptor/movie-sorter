@@ -1,5 +1,5 @@
-#import MovieServer.movie_sorter as ms
-import movie_sorter as ms
+import MovieServer.movie_sorter as ms
+#import movie_sorter as ms
 import pyodbc
 
 moviename=1
@@ -130,16 +130,9 @@ def delete_Movie_Entry(moviename, release_year):
                     ''' , moviename, release_year )
     cnxn.commit()
 
-# def sync(directory):
-#     # directories = cursor.execute('''SELECT DISTINCT file_loc from Movies''' )
-    
-#     # directory = 0
+def sync(directory):
 
-#     import_to_SQLMoviesTable(directory)
-    
-#     # catches up the database if it is missing entries that are found in the Folder
-#     # for row in directories.fetchall():
-#         # import_to_SQLMoviesTable(row[directory])
+    import_to_SQLMoviesTable(directory)
     
         
     
@@ -175,12 +168,14 @@ def import_to_SQLMoviesTable(directory):
             # but raises an error which has to be waived to continue running the insert procedure
             pass
         
-     # catches up the database if it has additional entries not found in the Folder anymore     
+      # catches up the database if it has additional entries not found in the Folder anymore     
     extraMovies = cursor.execute('''select movie, release_year, file_loc from Movies
-                                         where file_loc = (?)''', directory )                   
+                                          where file_loc = (?)''', directory )                   
     for row in extraMovies.fetchall():
         if [row[moviename],row[release_year]] not in movie_names_and_years:
-           delete_Movie_Entry( row[moviename] , row[release_year] )
+            delete_Movie_Entry( row[moviename] , row[release_year] )
+            
+    return movies_not_found
     
 
 def averageMovieScore(rt , meta, imdb):

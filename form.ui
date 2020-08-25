@@ -29,7 +29,7 @@
    <item row="0" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_1">
       <property name="sizePolicy">
@@ -106,26 +106,6 @@
          <property name="spacing">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QLineEdit" name="status"/>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="dirPath"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="browseDirectories">
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="importMovies">
-           <property name="text">
-            <string>Import</string>
-           </property>
-          </widget>
-         </item>
          <item alignment="Qt::AlignLeft|Qt::AlignTop">
           <widget class="QLabel" name="menuLabel">
            <property name="sizePolicy">

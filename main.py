@@ -149,7 +149,7 @@ class MovieApp(QMainWindow):
 #        self.ui.status.setReadOnly(True)
         self.create_local_cache() # create a local cache for a first time user
         self.connect_to_local_cache()
-        self.ui.stackedWidget.setCurrentIndex(0)
+        self.ui.stackedWidget.setCurrentIndex(1)
         self.connect_buttons()
         self.init_movies_view()
 
@@ -170,6 +170,8 @@ class MovieApp(QMainWindow):
         print("click", s)
         dlg = CustomDialog(self)
         if dlg.exec_():
+            server.sync(dlg.dirName)
+            self.update_movies_view
             print("Success!")
         else:
             print("Cancel!")
@@ -283,15 +285,13 @@ class MovieApp(QMainWindow):
     def create_local_cache(self):
         try:
             server.Create_Local_Cache()
-            print("Sucessfully created local cache")
         except:
-            print("Error: cache already exists!")
+            pass
 
 
     def connect_to_local_cache(self):
         try:
             server.Connect_to_Local_Cache()
-            print("Successfully connected to local cache")
         except:
             print("Error: no local cache")
 
@@ -310,7 +310,10 @@ class MovieApp(QMainWindow):
             if len(dirName) == 0:
                 print("No directory selected!")
             else:
-               server.import_to_SQLMoviesTable(dirName)
+               movies_not_found = server.import_to_SQLMoviesTable(dirName)
+               print(movies_not_found)
+               # need to display movies not found
+               self.update_movies_view
                print("Movies successfully imported")
         except:
             print("Could not connect to Directory")
