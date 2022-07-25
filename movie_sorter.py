@@ -1,7 +1,7 @@
 import os
 import requests
 import re 
-import MovieServer.constant as c
+import constant as c
 
 class Movie:
     def __init__(self, name, year):
@@ -88,7 +88,7 @@ def get_tmdb_id(nm, year):
                 'include_adult': 'false'}) 
     resp = requests.get(c.TMDB_URL + 'search/movie', params = payload)
     resp_json = resp.json()
-    if resp.status_code != c.OK_STATUS:
+    if resp.status_code != requests.codes.ok:
         return c.ERROR
     
     #case 3: name is valid and year is valid but year is wrong 
@@ -97,7 +97,7 @@ def get_tmdb_id(nm, year):
                 'include_adult': 'false'}
         resp = requests.get(c.TMDB_URL + 'search/movie', params = payload)
         resp_json = resp.json()
-        if resp.status_code != c.OK_STATUS or resp_json['total_results'] == 0: #still can't find it
+        if resp.status_code != requests.codes.ok or resp_json['total_results'] == 0: #still can't find it
             return c.ERROR
     
     #throw error when there are multiple results
@@ -112,7 +112,7 @@ def get_movie_tmdb(tmdb_id):
     resp = requests.get(c.TMDB_URL + 'movie/' + str(tmdb_id), 
                             params = payload)
                   
-    if resp.status_code != c.OK_STATUS: #movie not found
+    if resp.status_code != requests.codes.ok: #movie not found
         return c.ERROR 
         
     return resp.json()
@@ -123,7 +123,7 @@ returns the omdb details of movie including the ratings
 def get_movie_omdb(imdb_id):
     payload = {'i': str(imdb_id), 'apikey': c.OMDB_KEY}
     resp = requests.get(c.OMDB_URL, params = payload)
-    if resp.status_code != c.OK_STATUS or not resp.json()["Response"]: #movie not found
+    if resp.status_code != requests.codes.ok or not resp.json()["Response"]: #movie not found
         return c.ERROR
     
     return resp.json()
@@ -179,9 +179,6 @@ def get_movies_in_dir(path):
                                                + path)
             else:
                 movies_not_found.append(entry.name + " needs its name rechecked in "
-                                        + path)
-                        
-        
-                
+                                        + path)       
             
     return movies_found, movies_not_found

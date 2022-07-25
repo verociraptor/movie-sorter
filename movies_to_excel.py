@@ -4,8 +4,6 @@ import sys
 import re 
 import constant as c 
 import os
-if os.name == 'nt': #if os is windows
-    import win32api, win32con
 
 def print_usage():
     print("To use, enter the master directory that holds directories that holds multiple movie directories."
@@ -30,20 +28,18 @@ def get_movies():
                 continue
             for entry in os.scandir(option):
                 subpath = os.path.join(option, entry)
-                if entry.is_dir() and not file_is_hidden(subpath):#subdir of movies
+                if entry.is_dir():#subdir of movies
                     movies, movies_not_found = ms.get_movies_in_dir(subpath)
-                    create_excel_sheet(entry.name, movies)
+                    create_excel_sheet(entry.name, movies, movies_not_found)
                     display_movies_not_found(movies_not_found)
                     print("\n")
             
-def create_excel_sheet(directory, movies):
+def create_excel_sheet(directory, movies, movies_not_found):
     workbook = xlsxwriter.Workbook('MoviesIn_' + directory + '_.xlsx')
     worksheet = workbook.add_worksheet()
 
     row = 0
     col = 0
-
-    
                 
     for name in c.TITLES:
         worksheet.write(row, col, name)
@@ -77,6 +73,14 @@ def create_excel_sheet(directory, movies):
         worksheet.write(row, col, movie.orig_lang)
         row += 1
         col = 0
+    
+    row += 1
+    not_found_str = "Movies with no info found: "
+    for movie in movies_not_found:
+        not_found_str += movie
+
+    worksheet.write(row, col, not_found_str)
+
         
     workbook.close()
 
@@ -90,12 +94,12 @@ def display_movies_not_found(movies_not_found):
 #return true or false if a file given is a hidden one
 #this is different for windows, or unix os
 #code gotten from https://www.tutorialspoint.com/How-to-ignore-hidden-files-using-os-listdir-in-Python
-def file_is_hidden(p):
-    if os.name== 'nt':
-        attribute = win32api.GetFileAttributes(p)
-        return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
-    else:
-        return p.startswith('.') #linux-osx
+# def file_is_hidden(p):
+#     if os.name== 'nt':
+#         attribute = win32api.GetFileAttributes(p)
+#         return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
+#     else:
+#         return p.startswith('.') #linux-osx
         
 get_movies()
 
