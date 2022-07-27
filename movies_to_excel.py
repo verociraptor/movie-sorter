@@ -1,16 +1,14 @@
 import xlsxwriter
 import movie_sorter as ms
-import sys
-import re 
 import constant as c 
 import os
 
 def print_usage():
-    print("To use, enter the master directory that holds directories that holds multiple movie directories."
+    print("---------------------------------------------- \nTo use, enter the master directory that holds directories that holds multiple movie directories."
             + "\nThe movies themselves should be directories. Errors will be thrown for those that are not.\nThe ideal naming format for a"
             + " movie directory is the movie name then the theatrical release year in parantheses."
             + " \nFor example, 'The.Lion.King(1994)'. The program will return any movies it cannot find.\n"
-            + "Enter 'q' to quit program. \nEnter 'usage' to get usage. \nEnter directory path.")
+            + "Enter 'q' to quit program. \nEnter 'usage' to get usage. \nEnter directory path \n----------------------------------------------")
             
 def get_movies():
     print_usage()
@@ -26,16 +24,20 @@ def get_movies():
             if(not os.path.exists(option)):
                 print(option + " does not exist.")
                 continue
-            for entry in os.scandir(option):
-                subpath = os.path.join(option, entry)
-                if entry.is_dir():#subdir of movies
-                    movies, movies_not_found = ms.get_movies_in_dir(subpath)
-                    create_excel_sheet(entry.name, movies, movies_not_found)
-                    display_movies_not_found(movies_not_found)
-                    print("\n")
             
-def create_excel_sheet(directory, movies, movies_not_found):
-    workbook = xlsxwriter.Workbook('MoviesIn_' + directory + '_.xlsx')
+            while True:
+                print("Provide a name for this movie excel sheet:")
+                name = input().strip()
+                if name == "" or name is None:
+                    continue
+                else:
+                    break
+            movies, movies_not_found = ms.get_movies_in_dir(option)
+            create_excel_sheet(name, movies, movies_not_found)
+            display_movies_not_found(movies_not_found)
+            
+def create_excel_sheet(file_name, movies, movies_not_found):
+    workbook = xlsxwriter.Workbook(file_name + '.xlsx')
     worksheet = workbook.add_worksheet()
 
     row = 0
@@ -75,31 +77,19 @@ def create_excel_sheet(directory, movies, movies_not_found):
         col = 0
     
     row += 1
-    not_found_str = "Movies with no info found: "
+    not_found_str = "Movies with no info found:\n"
     for movie in movies_not_found:
         not_found_str += movie
 
     worksheet.write(row, col, not_found_str)
-
-        
     workbook.close()
 
 def display_movies_not_found(movies_not_found):
     if len(movies_not_found)== 0: #all movies were found
-        return;
+        return
     print(c.ERROR_MSSG)
     for movie in movies_not_found:
         print(movie)
-
-#return true or false if a file given is a hidden one
-#this is different for windows, or unix os
-#code gotten from https://www.tutorialspoint.com/How-to-ignore-hidden-files-using-os-listdir-in-Python
-# def file_is_hidden(p):
-#     if os.name== 'nt':
-#         attribute = win32api.GetFileAttributes(p)
-#         return attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
-#     else:
-#         return p.startswith('.') #linux-osx
         
 get_movies()
 

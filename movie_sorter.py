@@ -175,10 +175,8 @@ def get_movies_in_dir(path):
                     curr_movie.set_properties(tmdb_json, omdb_json)
                     movies_found.append(curr_movie)
                 else:
-                    movies_not_found.append(entry.name + " needs its name rechecked in "
-                                               + path)
+                    movies_not_found.append(entry.name + "\n")
             else:
-                movies_not_found.append(entry.name + " needs its name rechecked in "
-                                        + path)       
+                movies_not_found.append(entry.name + "\n")       
             
     return movies_found, movies_not_found
