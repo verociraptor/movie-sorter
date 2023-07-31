@@ -132,16 +132,14 @@ changes a movie file within a directory of movie directories
 into its own movie directory containing the same movie file
 this makes the process tidier and organized when searching for movies
 """
-def change_file_into_dir(path):
-    for entry in os.scandir(path):
-        subpath = os.path.join(path, entry)
-        if entry.name.lower().endswith('.mkv'):
-            new_dir = entry.name[:-4]
-            os.mkdir(os.path.join(path, new_dir))
-            new_path = os.path.join(path, new_dir)
-            os.rename(subpath, os.path.join(new_path, entry.name))
+def change_file_into_dir(path, file):
+    subpath = os.path.join(path, file)
+    new_dir = file.name[:-4]
+    os.mkdir(os.path.join(path, new_dir))
+    new_path = os.path.join(path, new_dir)
+    os.rename(subpath, os.path.join(new_path, file.name))
+    return os.DirEntry(new_path)
  
-
 """
 return movies and the movies not found in a given directory 
 """
@@ -153,7 +151,7 @@ def get_movies_in_dir(path):
         #is a movie file but has no respective directory
         #creates dir and movies file inside it
         if entry.name.lower().endswith('.mkv'):
-            change_file_into_dir(path)
+            entry = change_file_into_dir(path, entry)
             
         if os.path.isdir(entry):#a movie
             #get current movie 
