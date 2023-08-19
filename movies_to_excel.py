@@ -10,7 +10,7 @@ def print_usage():
             + " \nFor example, 'The.Lion.King(1994)'. The program will return any movies it cannot find.\n"
             + "Enter 'q' to quit program. \nEnter 'usage' to get usage. \nEnter full directory path without quotes, e.g. 'D:\\path\\to\\root\\dir\\of\\movies'.\n"
             + "----------------------------------------------")
-            
+
 def run():
     print_usage()
     option = ""
@@ -37,7 +37,7 @@ def get_movies(directory_name):
     if len(movies) == 0:
         print("No movies found to add into excel sheet. Please try again.")
         return
-    
+
     print("Creating movie excel at path " + excel_name + " ...")
     create_excel_sheet(excel_name, movies, movies_not_found)
     display_movies_not_found(movies_not_found)
@@ -59,13 +59,13 @@ def create_excel_sheet(file_name, movies, movies_not_found):
 
     row = 0
     col = 0
-                
+
     for name in c.TITLES:
         worksheet.write(row, col, name)
         col += 1
-      
+
     row = 1
-    col = 0  
+    col = 0
     for movie in movies:
         worksheet.write(row, col, movie.name)
         col += 1
@@ -92,7 +92,7 @@ def create_excel_sheet(file_name, movies, movies_not_found):
         worksheet.write(row, col, movie.orig_lang)
         row += 1
         col = 0
-    
+
     row += 1
     not_found_str = "Movies with no info found:\n"
     for movie in movies_not_found:
@@ -107,7 +107,5 @@ def display_movies_not_found(movies_not_found):
     print(c.ERROR_MSSG)
     for movie in movies_not_found:
         print(movie)
-        
+
 run()
-
-
